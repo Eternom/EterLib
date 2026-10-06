@@ -4,6 +4,7 @@ import fr.eternom.eterLib.EterLib;
 import fr.eternom.eterLib.helper.gui.MenuListener;
 import fr.eternom.eterLib.module.combat.CombatListener;
 import fr.eternom.eterLib.module.player.PlayerListener;
+import fr.eternom.eterLib.module.server.ServerNameListener;
 import fr.eternom.eterLib.module.teleport.TeleportListener;
 import org.bukkit.event.Listener;
 
@@ -14,6 +15,7 @@ public class Events {
         register(lib, new CombatListener(lib.getCombat()));
         register(lib, new TeleportListener(lib, lib.getTeleports(), lib.getWarmup(), cancelWarmupOnDamage));
         register(lib, new MenuListener(lib));
+        register(lib, new ServerNameListener(lib, lib.getServerDisplayName()));
     }
 
     private void register(EterLib lib, Listener listener) {

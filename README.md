@@ -16,6 +16,7 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `listOnline()` |
 | `module/server/ServerDirectory` | Table `eter_servers` : nom affiché de chaque serveur (`server-display-name`), pour que tous les plugins Paper affichent les mêmes noms : `lib.getServerDisplayName("survival")` → « Survie » |
+| `module/server/ServerNameListener` | Envoie `server-display-name` au proxy (canal `eter:server`, à chaque arrivée de joueur) : EterTab-Velocity n'a pas de liste de noms à tenir |
 | `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur |
 
 ## Utilisation dans un plugin
