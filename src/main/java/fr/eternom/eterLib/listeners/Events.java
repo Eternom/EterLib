@@ -1,6 +1,7 @@
 package fr.eternom.eterLib.listeners;
 
 import fr.eternom.eterLib.EterLib;
+import fr.eternom.eterLib.helper.gui.MenuListener;
 import fr.eternom.eterLib.module.combat.CombatListener;
 import fr.eternom.eterLib.module.player.PlayerListener;
 import fr.eternom.eterLib.module.teleport.TeleportListener;
@@ -12,6 +13,7 @@ public class Events {
         register(lib, new PlayerListener(lib, lib.getPlayers()));
         register(lib, new CombatListener(lib.getCombat()));
         register(lib, new TeleportListener(lib, lib.getTeleports(), lib.getWarmup(), cancelWarmupOnDamage));
+        register(lib, new MenuListener(lib));
     }
 
     private void register(EterLib lib, Listener listener) {

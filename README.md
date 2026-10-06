@@ -9,8 +9,9 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 |---|---|
 | `core/Sql`, `core/Cache` | Un seul pool MySQL/MariaDB et un seul pool Redis (optionnel) pour tous les plugins |
 | `helper/sql/Database` | Requêtes sans SQL brut ; une instance par plugin avec **son préfixe de tables** |
-| `helper/cache/RedisCache` | Clés Redis préfixées (`cache.prefix`) |
+| `helper/cache/RedisCache` | Clés Redis préfixées (`cache.prefix`), verrous (`setIfAbsent`, `deleteIfValue`) |
 | `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune |
+| `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) : clics annulés, double-clic protégé |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau |
 | `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur |
 
@@ -25,7 +26,7 @@ repositories {
     mavenLocal()                  // repli : copie publiée sur ta machine avec `gradlew publishToMavenLocal`
 }
 dependencies {
-    compileOnly("com.github.Eternom:EterLib:1.0.0")
+    compileOnly("com.github.Eternom:EterLib:1.1.0")
 }
 ```
 

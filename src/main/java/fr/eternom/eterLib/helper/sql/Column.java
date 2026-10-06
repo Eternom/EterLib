@@ -6,7 +6,7 @@ package fr.eternom.eterLib.helper.sql;
  */
 public final class Column {
 
-    public enum Type { INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, TEXT, UUID }
+    public enum Type { INT, LONG, FLOAT, DOUBLE, BOOLEAN, STRING, TEXT, BLOB, UUID }
 
     private final String name;
     private final Type type;

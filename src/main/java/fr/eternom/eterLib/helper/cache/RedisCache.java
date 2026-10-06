@@ -2,8 +2,10 @@ package fr.eternom.eterLib.helper.cache;
 
 import fr.eternom.eterLib.core.Cache;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.params.SetParams;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -14,6 +16,9 @@ import java.util.function.Function;
  * À créer seulement si Cache#isEnabled().
  */
 public class RedisCache {
+
+    private static final String DELETE_IF_VALUE =
+            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
     private final Cache cache;
 
@@ -31,6 +36,23 @@ public class RedisCache {
 
     public void set(String key, String value, Duration ttl) {
         call(jedis -> jedis.psetex(key(key), ttl.toMillis(), value));
+    }
+
+    /**
+     * Pose la valeur seulement si la clé n'existe pas (verrou) ; elle expire après ttl.
+     * @return true si la clé a été posée, false si elle existait déjà
+     */
+    public boolean setIfAbsent(String key, String value, Duration ttl) {
+        return "OK".equals(call(jedis -> jedis.set(key(key), value, SetParams.setParams().nx().px(ttl.toMillis()))));
+    }
+
+    /**
+     * Supprime la clé seulement si elle vaut encore value, en une seule opération atomique
+     * (libération d'un verrou sans risquer d'enlever celui qu'un autre serveur vient de prendre).
+     */
+    public boolean deleteIfValue(String key, String value) {
+        Object deleted = call(jedis -> jedis.eval(DELETE_IF_VALUE, List.of(key(key)), List.of(value)));
+        return deleted instanceof Long count && count > 0;
     }
 
     public void delete(String key) {

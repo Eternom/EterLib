@@ -58,6 +58,11 @@ public final class Row {
         return Boolean.parseBoolean(value.toString());
     }
 
+    /** Données binaires (colonne BLOB), null si vide. */
+    public byte[] getBytes(String column) {
+        return get(column) instanceof byte[] bytes ? bytes : null;
+    }
+
     public UUID getUUID(String column) {
         Object value = get(column);
         if (value == null) return null;

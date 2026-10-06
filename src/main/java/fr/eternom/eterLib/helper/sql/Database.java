@@ -177,6 +177,8 @@ public class Database {
             case BOOLEAN -> "BOOLEAN";
             case STRING -> "VARCHAR(" + column.getLength() + ")";
             case TEXT -> "TEXT";
+            // Jusqu'à 4 Go : un inventaire plein de shulkers et de livres dépasse vite les 64 Ko d'un BLOB simple
+            case BLOB -> "LONGBLOB";
             case UUID -> "CHAR(36)";
         };
     }
