@@ -1,0 +1,22 @@
+# EterLib messages (shared teleport rules), MiniMessage format: https://docs.advntr.dev/minimessage/format
+# Palette tags (EterLib/config.yml > language.colors): <primary> <accent> <info> <error> <success>
+#   <info> = normal light gray text, <accent> = important words in orange.
+# Values between <> such as <destination> are filled in by the plugin. To show a literal "<", write \< inside 'single quotes'.
+# A missing key falls back to the plugin's built-in text: you only need to keep the lines you change.
+
+prefix: "<gradient:#FF7A00:#FFB347><bold>Eternom</bold></gradient> <dark_gray>» "
+
+error:
+  generic: "<error>Something went wrong, please try again later."
+
+teleport:
+  warmup-start: "<info>Teleporting in <accent><time>s</accent>, don't move!"
+  warmup-bar: "<info>Teleporting to <accent><destination></accent> <dark_gray>· <accent><time>s"
+  cancelled-bar: "<error>Teleport cancelled"
+  cancelled-move: "<error>Teleport cancelled: you moved."
+  cancelled-damage: "<error>Teleport cancelled: you took damage."
+  in-combat: "<error>You are in combat! Wait <accent><time>s</accent> before teleporting."
+  cooldown: "<error>Wait <accent><time>s</accent> before teleporting again."
+  sending: "<info>Sending you to <accent><server></accent>..."
+  world-missing: "<error>The world of <accent><destination></accent> no longer exists."
+  target-gone: "<error><accent><destination></accent> is no longer here."

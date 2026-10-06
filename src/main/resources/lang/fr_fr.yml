@@ -1,0 +1,22 @@
+# Messages d'EterLib (règles de téléportation communes), format MiniMessage : https://docs.advntr.dev/minimessage/format
+# Balises de la palette (EterLib/config.yml > language.colors) : <primary> <accent> <info> <error> <success>
+#   <info> = texte courant gris clair, <accent> = mots importants en orange.
+# Les valeurs entre <> comme <destination> sont remplies par le plugin. Pour afficher un "<", écrire \< entre 'guillemets simples'.
+# Une clé absente reprend le texte intégré au plugin : tu peux ne garder que les lignes que tu modifies.
+
+prefix: "<gradient:#FF7A00:#FFB347><bold>Eternom</bold></gradient> <dark_gray>» "
+
+error:
+  generic: "<error>Une erreur est survenue, réessaie plus tard."
+
+teleport:
+  warmup-start: "<info>Téléportation dans <accent><time>s</accent>, ne bouge pas !"
+  warmup-bar: "<info>Téléportation vers <accent><destination></accent> <dark_gray>· <accent><time>s"
+  cancelled-bar: "<error>Téléportation annulée"
+  cancelled-move: "<error>Téléportation annulée : tu as bougé."
+  cancelled-damage: "<error>Téléportation annulée : tu as pris des dégâts."
+  in-combat: "<error>Tu es en combat ! Attends <accent><time>s</accent> avant de te téléporter."
+  cooldown: "<error>Attends <accent><time>s</accent> avant de te téléporter à nouveau."
+  sending: "<info>Envoi vers <accent><server></accent>..."
+  world-missing: "<error>Le monde de <accent><destination></accent> n'existe plus."
+  target-gone: "<error><accent><destination></accent> n'est plus là."

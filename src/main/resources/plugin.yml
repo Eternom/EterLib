@@ -1,0 +1,29 @@
+name: EterLib
+version: '${version}'
+
+main: fr.eternom.eterLib.EterLib
+api-version: '26.2'
+load: POSTWORLD
+authors: [ NadTum ]
+description: Socle commun des plugins Eter (base, Redis, langue, joueurs, téléportation).
+
+libraries:
+  - com.zaxxer:HikariCP:7.0.2
+  - redis.clients:jedis:6.2.0
+  - org.mariadb.jdbc:mariadb-java-client:3.5.6
+
+permissions:
+  # Dispenses des règles de téléportation communes (EterLib/config.yml > teleport)
+  eter.bypass.warmup:
+    default: op
+  eter.bypass.cooldown:
+    default: op
+  eter.bypass.combat:
+    default: op
+  eter.bypass:
+    description: Toutes les dispenses de téléportation.
+    default: op
+    children:
+      eter.bypass.warmup: true
+      eter.bypass.cooldown: true
+      eter.bypass.combat: true

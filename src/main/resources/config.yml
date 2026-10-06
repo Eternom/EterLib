@@ -1,0 +1,131 @@
+# ============================================================
+#  EterLib : configuration commune à tous les plugins Eter
+# ============================================================
+#
+#  Serveur, base de données, Redis, téléportation, langue et couleurs se
+#  règlent ICI une seule fois, pour EterHome, EterEssential, EterMarket...
+#  Chaque plugin n'a plus dans sa propre config que ses réglages à lui.
+#  Toute modification nécessite un redémarrage du serveur.
+
+# ============================================================
+#  Serveur
+# ============================================================
+#
+#  Nom de CE serveur, EXACTEMENT comme dans la config du proxy
+#  (section [servers] de velocity.toml, ou "servers" de BungeeCord).
+#  Différent sur chaque serveur. Sert à savoir où sont les joueurs
+#  et les homes, et à y envoyer les joueurs.
+
+server-name: ''
+
+# ============================================================
+#  Base de données (MySQL ou MariaDB)
+# ============================================================
+#
+#  Ces infos te sont données par ton hébergeur (ex : onglet
+#  "Databases" sur Pterodactyl) ou ton admin.
+#  MySQL ou MariaDB est détecté automatiquement à la connexion.
+#
+#  Tous les serveurs du réseau pointent vers la même base. Chaque plugin
+#  y a ses propres tables, préfixées par son nom (eter_players,
+#  eterhome_homes...) : aucun conflit possible, et un site web peut tout lire.
+
+database:
+  # Adresse du serveur de base de données.
+  # "localhost" si la base tourne sur la même machine que Minecraft.
+  host: localhost
+
+  # Port du serveur de base de données (3306 par défaut).
+  port: 3306
+
+  # Nom de la base. Elle doit déjà exister : les plugins créent les tables,
+  # pas la base elle-même (ex : CREATE DATABASE eternom;).
+  name: eternom
+
+  # Identifiants d'un utilisateur ayant les droits sur cette base.
+  # Évite "root" en production : crée un utilisateur dédié.
+  username: root
+  password: ''
+
+  # Nombre max de connexions ouvertes en même temps, partagées par tous les plugins Eter.
+  # 10 suffit largement ; à augmenter seulement si les logs signalent des attentes de
+  # connexion. Ne pas dépasser la limite de connexions autorisée par ton hébergeur.
+  pool-size: 10
+
+# ============================================================
+#  Cache (Redis)
+# ============================================================
+#
+#  Redis garde les données souvent lues et sait qui est connecté où, pour
+#  éviter de redemander à la base à chaque fois. La base de données reste
+#  toujours la source de vérité.
+#
+#   enabled: false | Pas de Redis : tout est lu en base. EterHome fonctionne,
+#                  | EterEssential refuse de démarrer (Redis obligatoire).
+#   enabled: true  | Redis partagé entre tous les serveurs du réseau.
+#
+#  Tout le réseau doit être avec Redis, ou tout le réseau sans : jamais à moitié.
+
+cache:
+  enabled: false
+
+  # Adresse et port du serveur Redis ("localhost" si même machine, port par défaut 6379).
+  host: localhost
+  port: 6379
+
+  # Mot de passe Redis, laisser vide s'il n'y en a pas.
+  password: ''
+
+  # Numéro de base Redis (0 à 15). Laisser 0 sauf si ton admin t'en attribue une autre.
+  database: 0
+
+  # Préfixe ajouté à toutes les clés, pour ne pas mélanger avec d'autres programmes
+  # utilisant le même Redis. Identique sur tous les serveurs du réseau.
+  prefix: 'eter:'
+
+  # Nombre max de connexions ouvertes en même temps vers Redis. 8 suffit largement.
+  pool-size: 8
+
+# ============================================================
+#  Téléportation (commune : /home, /tpa, /spawn...)
+# ============================================================
+#
+#  Les mêmes règles pour toutes les téléportations : impossible d'enchaîner
+#  /home et /tpa pour contourner un cooldown ou fuir un combat.
+#  Les durées sont en secondes ; 0 désactive la règle.
+#  Les permissions eter.bypass.warmup / .cooldown / .combat (op par défaut)
+#  dispensent de chaque règle.
+
+teleport:
+  # Attente avant de partir (bossbar + particules).
+  warmup: 3
+  # Bouger de plus d'un demi-bloc pendant l'attente l'annule.
+  cancel-on-move: true
+  # Prendre des dégâts pendant l'attente l'annule.
+  cancel-on-damage: true
+  # Délai entre deux téléportations, partagé entre tous les serveurs.
+  cooldown: 30
+  # Après un coup donné ou reçu (joueur OU monstre), téléportation interdite pendant ce temps.
+  combat-tag: 10
+
+# ============================================================
+#  Langue et couleurs (communes à tous les plugins Eter)
+# ============================================================
+#
+#  Chaque plugin a ses messages dans plugins/<Plugin>/lang/ (format MiniMessage),
+#  un fichier par langue avec le code Minecraft (en_us.yml, fr_fr.yml...).
+#  Chaque joueur reçoit la langue de son jeu ; si elle n'existe pas, la langue
+#  par défaut ci-dessous. Pour ajouter une langue : copier en_us.yml sous un
+#  autre nom (ex : de_de.yml) et le traduire.
+
+language:
+  default: en_us
+
+  # Palette utilisable dans les messages de tous les plugins.
+  # Couleur hexadécimale ("#FF8C1A") ou nommée (gray, gold...).
+  colors:
+    primary: '#FF7A00'   # titres (menu, bossbar)
+    accent: '#FFA640'    # mots importants : noms, nombres, durées, commandes
+    info: gray           # texte courant, qui ne doit pas ressortir (gris clair)
+    error: '#FF5C5C'     # messages d'erreur
+    success: '#5FD38D'   # petits repères seulement (bouton Confirmer, "(ici)")
