@@ -15,6 +15,7 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) : clics annulés, double-clic protégé |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `listOnline()` |
+| `module/server/ServerDirectory` | Table `eter_servers` : nom affiché de chaque serveur (`server-display-name`), pour que tous les plugins Paper affichent les mêmes noms : `lib.getServerDisplayName("survival")` → « Survie » |
 | `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur |
 
 ## Utilisation dans un plugin

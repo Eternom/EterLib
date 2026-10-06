@@ -10,6 +10,7 @@ import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
+import fr.eternom.eterLib.module.server.ServerDirectory;
 import fr.eternom.eterLib.module.teleport.TeleportCooldown;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
@@ -53,6 +54,7 @@ public final class EterLib extends JavaPlugin {
     private Map<String, String> colors;
     private Messages messages;
     private PlayerDirectory players;
+    private ServerDirectory servers;
     private CombatTracker combat;
     private TeleportWarmup warmup;
     private TeleportService teleports;
@@ -125,6 +127,9 @@ public final class EterLib extends JavaPlugin {
         ConfigurationSection teleport = getConfig().getConfigurationSection("teleport");
         players = new PlayerDirectory(database, redis, serverName);
         players.clearServer();
+        servers = new ServerDirectory(database);
+        servers.register(serverName, serverDisplayName);
+        servers.refresh();
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
@@ -134,6 +139,8 @@ public final class EterLib extends JavaPlugin {
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
+        // Un serveur démarré plus tard (ou renommé) apparaît dans la minute
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, servers::refresh, HEARTBEAT_TICKS, HEARTBEAT_TICKS);
 
         instance = this;
     }
@@ -172,6 +179,14 @@ public final class EterLib extends JavaPlugin {
     /** Nom de ce serveur montré aux joueurs (server-display-name, sinon server-name), ex : "Survie". */
     public String getServerDisplayName() {
         return serverDisplayName;
+    }
+
+    /**
+     * Nom montré aux joueurs pour n'importe quel serveur du réseau, à partir de son nom dans le proxy
+     * ("survival" -> "Survie"). Lu en mémoire : utilisable sur le thread principal.
+     */
+    public String getServerDisplayName(String serverName) {
+        return servers.displayName(serverName);
     }
 
     /** Messages entre serveurs (Redis pub/sub) ; null si Redis est désactivé. */

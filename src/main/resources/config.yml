@@ -18,8 +18,9 @@
 
 server-name: ''
 
-# Nom de CE serveur tel que les joueurs le voient (chat...), ex : "Survie".
-# Vide : server-name est utilisé.
+# Nom de CE serveur tel que les joueurs le voient, ex : "Survie". Le seul endroit
+# où le régler côté Paper : tous les plugins Eter (chat, sidebar, homes...)
+# l'utilisent, y compris depuis les autres serveurs. Vide : server-name est utilisé.
 server-display-name: ''
 
 # ============================================================
