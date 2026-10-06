@@ -1,6 +1,6 @@
 package fr.eternom.eterLib.module.player;
 
-import org.bukkit.Bukkit;
+import fr.eternom.eterLib.helper.task.Tasks;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,12 +28,12 @@ public class PlayerListener implements Listener {
         UUID uuid = player.getUniqueId();
         String name = player.getName();
         String locale = player.locale().toString().toLowerCase(Locale.ROOT);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> directory.join(uuid, name, locale));
+        Tasks.async(plugin, () -> directory.join(uuid, name, locale), "Connexion non enregistrée dans eter_players : " + name);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> directory.quit(uuid));
+        Tasks.async(plugin, () -> directory.quit(uuid), "Déconnexion non enregistrée dans eter_players : " + uuid);
     }
 }

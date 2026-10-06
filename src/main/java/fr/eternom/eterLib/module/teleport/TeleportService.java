@@ -5,8 +5,8 @@ import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sql.Column;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.helper.sql.Row;
+import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterLib.module.combat.CombatTracker;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * Téléportation commune à tous les plugins Eter (homes, tpa, spawn...) : mêmes règles partout,
@@ -83,30 +82,18 @@ public class TeleportService {
         }
         UUID uuid = player.getUniqueId();
         boolean checkCooldown = cooldown.isEnabled() && !player.hasPermission(BYPASS_COOLDOWN);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            long remaining;
-            try {
-                remaining = checkCooldown ? cooldown.remainingSeconds(uuid) : 0;
-            } catch (RuntimeException e) {
-                fail(player, e);
+        Tasks.async(plugin, player, () -> checkCooldown ? cooldown.remainingSeconds(uuid) : 0L, remaining -> {
+            if (remaining > 0) {
+                error(player, "teleport.cooldown", "time", String.valueOf(remaining));
                 return;
             }
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (!player.isOnline()) {
-                    return;
+            warmup.start(player, destination.label(), () -> {
+                // Un coup donné ou reçu pendant l'attente compte aussi
+                if (!inCombat(player) && move(player, destination) && checkCooldown) {
+                    Tasks.async(plugin, () -> cooldown.start(uuid), "Cooldown non enregistré pour " + player.getName());
                 }
-                if (remaining > 0) {
-                    error(player, "teleport.cooldown", "time", String.valueOf(remaining));
-                    return;
-                }
-                warmup.start(player, destination.label(), () -> {
-                    // Un coup donné ou reçu pendant l'attente compte aussi
-                    if (!inCombat(player) && move(player, destination) && checkCooldown) {
-                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> cooldown.start(uuid));
-                    }
-                });
             });
-        });
+        }, () -> messages.send(player, "error.generic"));
     }
 
     /** Secondes de combat restantes (0 si le joueur en est dispensé). */
@@ -146,21 +133,14 @@ public class TeleportService {
         }
 
         UUID traveller = player.getUniqueId();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                savePending(traveller, destination);
-            } catch (RuntimeException e) {
-                fail(player, e);
-                return;
-            }
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (player.isOnline()) {
-                    messages.send(player, "teleport.sending", "server", destination.server());
-                    TeleportEffects.burst(player.getLocation());
-                    sendToServer(player, destination.server());
-                }
-            });
-        });
+        Tasks.async(plugin, player, () -> {
+            savePending(traveller, destination);
+            return destination.server();
+        }, server -> {
+            messages.send(player, "teleport.sending", "server", server);
+            TeleportEffects.burst(player.getLocation());
+            sendToServer(player, server);
+        }, () -> messages.send(player, "error.generic"));
         return true;
     }
 
@@ -175,11 +155,6 @@ public class TeleportService {
     private void error(Player player, String key, String... placeholders) {
         messages.send(player, key, placeholders);
         player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
-    }
-
-    private void fail(Player player, RuntimeException e) {
-        plugin.getLogger().log(Level.SEVERE, "Erreur pendant une téléportation", e);
-        Bukkit.getScheduler().runTask(plugin, () -> messages.send(player, "error.generic"));
     }
 
     private void savePending(UUID traveller, Destination destination) {

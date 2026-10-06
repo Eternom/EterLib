@@ -60,6 +60,37 @@ public final class EterLib extends JavaPlugin {
         return instance;
     }
 
+    /**
+     * À appeler en premier dans le onEnable d'un plugin Eter : vérifie qu'EterLib est au moins en version minimum,
+     * sinon écrit pourquoi dans la console et désactive le plugin.
+     * Un EterLib antérieur à 1.3.0 n'a pas cette méthode : l'appel lève alors une LinkageError, que le plugin intercepte.
+     * @return false si le plugin a été désactivé
+     */
+    public static boolean requireVersion(JavaPlugin plugin, String minimum) {
+        String installed = get().getPluginMeta().getVersion();
+        if (isAtLeast(installed, minimum)) {
+            return true;
+        }
+        plugin.getLogger().severe(plugin.getName() + " nécessite EterLib " + minimum + " ou plus récent (installé : "
+                + installed + "). Plugin désactivé.");
+        Bukkit.getPluginManager().disablePlugin(plugin);
+        return false;
+    }
+
+    /** "1.10.0" >= "1.2.0" : compare les nombres un à un (un suffixe comme -SNAPSHOT est ignoré). */
+    private static boolean isAtLeast(String version, String minimum) {
+        String[] actual = version.split("[.-]");
+        String[] wanted = minimum.split("[.-]");
+        for (int i = 0; i < wanted.length; i++) {
+            int a = i < actual.length && actual[i].matches("\\d+") ? Integer.parseInt(actual[i]) : 0;
+            int w = Integer.parseInt(wanted[i]);
+            if (a != w) {
+                return a > w;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
