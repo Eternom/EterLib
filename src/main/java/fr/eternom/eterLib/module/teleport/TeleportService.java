@@ -73,6 +73,9 @@ public class TeleportService {
                 Column.of("pitch", Column.Type.FLOAT),
                 Column.of("target", Column.Type.UUID),
                 Column.of("created_at", Column.Type.LONG).notNull());
+        // Téléportations jamais arrivées (joueur déconnecté, serveur planté) : retirées à chaque démarrage
+        database.execute("DELETE FROM " + database.table(TABLE) + " WHERE created_at < ?",
+                System.currentTimeMillis() - PENDING_TTL.toMillis());
     }
 
     /** Point d'entrée des plugins : vérifie les règles puis téléporte. Thread principal. */

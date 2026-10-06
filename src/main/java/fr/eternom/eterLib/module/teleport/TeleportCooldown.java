@@ -27,6 +27,8 @@ public class TeleportCooldown {
         database.createTable(TABLE,
                 Column.of("player", Column.Type.UUID).primaryKey(),
                 Column.of("until", Column.Type.LONG).notNull());
+        // Sans Redis, pas de TTL : les délais terminés restent en base, on les retire à chaque démarrage
+        database.execute("DELETE FROM " + database.table(TABLE) + " WHERE until < ?", System.currentTimeMillis());
     }
 
     public boolean isEnabled() {
