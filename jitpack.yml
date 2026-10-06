@@ -1,7 +1,12 @@
 # Build JitPack (https://jitpack.io/#Eternom/EterLib)
 # Gradle tourne sur Java 21 ; le JDK 25 demandé par le projet (toolchain) est téléchargé
 # automatiquement grâce au plugin foojay déclaré dans settings.gradle.kts.
+# Gradle est installé par SDKMan plutôt que lancé via gradlew : dans l'environnement JitPack,
+# gradle-wrapper.jar s'est révélé illisible (build 1.1.0), alors que le fichier est valide.
 jdk:
   - openjdk21
+before_install:
+  - sdk install gradle 9.7.1
+  - sdk use gradle 9.7.1
 install:
-  - ./gradlew publishToMavenLocal
+  - gradle publishToMavenLocal
