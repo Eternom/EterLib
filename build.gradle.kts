@@ -4,12 +4,14 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+    // PaperMC en premier : il fournit aussi les dépendances courantes, et Maven Central limite les builds JitPack (429)
     maven("https://repo.papermc.io/repository/maven-public/")
+    mavenCentral()
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    // Version fixe (pas de "+") : évite de lister toutes les versions de Paper à chaque build
+    compileOnly("io.papermc.paper:paper-api:26.2.build.129-stable")
 
     // Téléchargées au démarrage par Paper via la section `libraries` du plugin.yml
     compileOnly("com.zaxxer:HikariCP:7.0.2")

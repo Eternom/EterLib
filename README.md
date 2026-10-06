@@ -26,7 +26,7 @@ repositories {
     mavenLocal()                  // repli : copie publiée sur ta machine avec `gradlew publishToMavenLocal`
 }
 dependencies {
-    compileOnly("com.github.Eternom:EterLib:1.1.1")
+    compileOnly("com.github.Eternom:EterLib:1.1.2")
 }
 ```
 
