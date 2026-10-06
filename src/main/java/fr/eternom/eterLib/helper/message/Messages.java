@@ -65,6 +65,22 @@ public class Messages {
         player.sendActionBar(get(player, key, placeholders));
     }
 
+    /**
+     * Texte brut (MiniMessage, non interprété) de key dans la langue du destinataire, null si absent.
+     * Pour le retravailler avant affichage (PlaceholderAPI, découpage en lignes...), puis {@link #render}.
+     */
+    public String raw(CommandSender receiver, String key) {
+        return lang.get(localeOf(receiver), key);
+    }
+
+    /**
+     * Interprète un texte MiniMessage avec la palette et des variables.
+     * @param tags balises en plus (ex : animations, valeurs déjà mises en forme)
+     */
+    public Component render(String raw, TagResolver tags, String... placeholders) {
+        return MINI_MESSAGE.deserialize(raw, colors, tags, placeholders(placeholders));
+    }
+
     private String localeOf(CommandSender receiver) {
         return receiver instanceof Player player
                 ? player.locale().toString().toLowerCase(Locale.ROOT)

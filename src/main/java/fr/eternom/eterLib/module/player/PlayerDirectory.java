@@ -98,6 +98,14 @@ public class PlayerDirectory {
         return database.getFirst(TABLE, Map.of("uuid", uuid)).map(this::toPlayer).map(NetworkPlayer::server);
     }
 
+    /** Nombre de joueurs connectés sur tout le réseau (présence rafraîchie depuis moins de ONLINE_TIMEOUT). */
+    public int countOnline() {
+        long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
+        return database.query("SELECT COUNT(*) AS online FROM " + database.table(TABLE)
+                        + " WHERE server IS NOT NULL AND last_seen > ?", since)
+                .stream().findFirst().map(row -> row.getInt("online")).orElse(0);
+    }
+
     public Optional<NetworkPlayer> get(UUID uuid) {
         return database.getFirst(TABLE, Map.of("uuid", uuid)).map(this::toPlayer);
     }

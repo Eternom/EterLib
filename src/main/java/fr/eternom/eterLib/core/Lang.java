@@ -86,7 +86,11 @@ public class Lang {
         return colors;
     }
 
+    /** Une liste YAML est rendue en lignes séparées par \n (en-têtes, sidebar, messages sur plusieurs lignes). */
     private String find(YamlConfiguration yaml, String key) {
-        return yaml == null ? null : yaml.getString(key);
+        if (yaml == null) {
+            return null;
+        }
+        return yaml.isList(key) ? String.join("\n", yaml.getStringList(key)) : yaml.getString(key);
     }
 }
