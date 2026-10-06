@@ -137,7 +137,7 @@ public final class EterLib extends JavaPlugin {
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         TeleportCooldown cooldown = new TeleportCooldown(database, redis, seconds(teleport, "cooldown", 30));
-        teleports = new TeleportService(this, database, redis, messages, serverName, warmup, cooldown, combat);
+        teleports = new TeleportService(this, database, redis, messages, serverName, servers, warmup, cooldown, combat);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(

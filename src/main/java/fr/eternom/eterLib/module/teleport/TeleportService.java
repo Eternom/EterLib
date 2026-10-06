@@ -7,6 +7,7 @@ import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.helper.sql.Row;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterLib.module.combat.CombatTracker;
+import fr.eternom.eterLib.module.server.ServerDirectory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -47,17 +48,19 @@ public class TeleportService {
     private final RedisCache redis; // null si Redis est désactivé
     private final Messages messages;
     private final String serverName;
+    private final ServerDirectory servers;
     private final TeleportWarmup warmup;
     private final TeleportCooldown cooldown;
     private final CombatTracker combat;
 
     public TeleportService(JavaPlugin plugin, Database database, RedisCache redis, Messages messages, String serverName,
-                           TeleportWarmup warmup, TeleportCooldown cooldown, CombatTracker combat) {
+                           ServerDirectory servers, TeleportWarmup warmup, TeleportCooldown cooldown, CombatTracker combat) {
         this.plugin = plugin;
         this.database = database;
         this.redis = redis;
         this.messages = messages;
         this.serverName = serverName;
+        this.servers = servers;
         this.warmup = warmup;
         this.cooldown = cooldown;
         this.combat = combat;
@@ -164,7 +167,7 @@ public class TeleportService {
             savePending(traveller, destination);
             return destination.server();
         }, server -> {
-            messages.send(player, "teleport.sending", "server", server);
+            messages.send(player, "teleport.sending", "server", servers.displayName(server));
             TeleportEffects.burst(player.getLocation());
             sendToServer(player, server);
         }, () -> messages.send(player, "error.generic"));
