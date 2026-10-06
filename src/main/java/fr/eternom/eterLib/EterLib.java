@@ -43,6 +43,8 @@ public final class EterLib extends JavaPlugin {
     private static final String TABLE_PREFIX = "eter_";
     private static final long HEARTBEAT_TICKS = 60 * 20;
     private static final long NAMES_REFRESH_TICKS = 10 * 20;
+    /** Préfixe de tous les messages des plugins Eter si language.prefix est absent (ancienne config). */
+    private static final String DEFAULT_PREFIX = "<gradient:#FF7A00:#FFB347><bold>Core</bold></gradient> <dark_gray>» ";
 
     private static EterLib instance;
 
@@ -54,6 +56,7 @@ public final class EterLib extends JavaPlugin {
     private RedisMessenger messenger;
     private String defaultLocale;
     private Map<String, String> colors;
+    private String prefix;
     private Messages messages;
     private PlayerDirectory players;
     private ServerDirectory servers;
@@ -112,6 +115,7 @@ public final class EterLib extends JavaPlugin {
             serverDisplayName = serverName;
         }
         defaultLocale = getConfig().getString("language.default", "en_us");
+        prefix = getConfig().getString("language.prefix", DEFAULT_PREFIX);
         colors = new HashMap<>();
         ConfigurationSection colorSection = getConfig().getConfigurationSection("language.colors");
         if (colorSection != null) {
@@ -171,7 +175,7 @@ public final class EterLib extends JavaPlugin {
 
     /** Messages d'un plugin : son dossier lang/, avec la langue par défaut et la palette communes. */
     public Messages messages(JavaPlugin plugin, String... bundledLocales) {
-        Lang lang = new Lang(plugin, defaultLocale, colors, bundledLocales);
+        Lang lang = new Lang(plugin, defaultLocale, colors, prefix, bundledLocales);
         lang.load();
         return new Messages(lang);
     }

@@ -128,6 +128,10 @@ teleport:
 language:
   default: en_us
 
+  # Préfixe de TOUS les messages des plugins Eter (EterHome, EterChat, EterEssential...),
+  # pour qu'ils viennent tous du même nom. Format MiniMessage.
+  prefix: '<gradient:#FF7A00:#FFB347><bold>Core</bold></gradient> <dark_gray>» '
+
   # Palette utilisable dans les messages de tous les plugins.
   # Couleur hexadécimale ("#FF8C1A") ou nommée (gray, gold...).
   colors:

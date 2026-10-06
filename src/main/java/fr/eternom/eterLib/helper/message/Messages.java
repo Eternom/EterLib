@@ -23,7 +23,7 @@ import java.util.Map;
  * - Couleurs de la palette utilisables comme balises : <success>, <error>, <accent>... (language.colors)
  * - Variables : paires nom/valeur, ex : send(player, "home.set", "home", "base") remplit <home>.
  *   Les valeurs sont insérées telles quelles, jamais interprétées comme du MiniMessage.
- * - send() ajoute le préfixe (clé "prefix"), get() non (titres, items, bossbar...).
+ * - send() ajoute le préfixe commun à tous les plugins (language.prefix d'EterLib), get() non (titres, items, bossbar...).
  */
 public class Messages {
 
@@ -31,6 +31,7 @@ public class Messages {
 
     private final Lang lang;
     private final TagResolver colors;
+    private final Component prefix;
 
     public Messages(Lang lang) {
         this.lang = lang;
@@ -42,6 +43,12 @@ public class Messages {
             }
         }
         this.colors = TagResolver.resolver(resolvers);
+        this.prefix = MINI_MESSAGE.deserialize(lang.getPrefix(), colors);
+    }
+
+    /** Préfixe commun des messages (ex : « Core »), pour composer une ligne à la main. */
+    public Component prefix() {
+        return prefix;
     }
 
     public Component get(CommandSender receiver, String key, String... placeholders) {
@@ -58,7 +65,7 @@ public class Messages {
     }
 
     public void send(CommandSender receiver, String key, String... placeholders) {
-        receiver.sendMessage(get(receiver, "prefix").append(get(receiver, key, placeholders)));
+        receiver.sendMessage(prefix.append(get(receiver, key, placeholders)));
     }
 
     public void actionBar(Player player, String key, String... placeholders) {

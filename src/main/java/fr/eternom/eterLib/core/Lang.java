@@ -23,14 +23,16 @@ public class Lang {
     private final JavaPlugin plugin;
     private final String defaultLocale;
     private final Map<String, String> colors;
+    private final String prefix;
     private final String[] bundled;
     private final Map<String, YamlConfiguration> languages = new HashMap<>();
 
     /** @param bundled langues fournies dans le jar du plugin (lang/<locale>.yml), ex : "en_us", "fr_fr" */
-    public Lang(JavaPlugin plugin, String defaultLocale, Map<String, String> colors, String... bundled) {
+    public Lang(JavaPlugin plugin, String defaultLocale, Map<String, String> colors, String prefix, String... bundled) {
         this.plugin = plugin;
         this.defaultLocale = defaultLocale.toLowerCase(Locale.ROOT);
         this.colors = colors;
+        this.prefix = prefix;
         this.bundled = bundled;
     }
 
@@ -84,6 +86,11 @@ public class Lang {
     /** Couleurs nommées de la palette commune : nom -> couleur ("#FF7A00" ou "gray"). */
     public Map<String, String> getColors() {
         return colors;
+    }
+
+    /** Préfixe commun des messages de tous les plugins (MiniMessage, language.prefix d'EterLib). */
+    public String getPrefix() {
+        return prefix;
     }
 
     /** Une liste YAML est rendue en lignes séparées par \n (en-têtes, sidebar, messages sur plusieurs lignes). */

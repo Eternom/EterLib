@@ -11,7 +11,7 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/sql/Database` | Requêtes sans SQL brut ; une instance par plugin avec **son préfixe de tables** |
 | `helper/cache/RedisCache` | Clés Redis préfixées (`cache.prefix`), verrous (`setIfAbsent`, `deleteIfValue`) |
 | `helper/cache/RedisMessenger` | Messages entre serveurs (pub/sub) : `publish`, `subscribe` ; un seul fil d'écoute, reconnexion automatique, messages perdus pendant une coupure |
-| `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune ; `raw` + `render` pour retravailler un texte (PlaceholderAPI, lignes) |
+| `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune ; **préfixe commun à tous les plugins** (`language.prefix`, « Core » par défaut, `messages.prefix()`) ; `raw` + `render` pour retravailler un texte (PlaceholderAPI, lignes) |
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) : clics annulés, double-clic protégé |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `listOnline()` |
@@ -69,4 +69,4 @@ Une seule base pour tout le réseau, pensée pour être lue par un futur site we
 ## Configuration
 
 `plugins/EterLib/config.yml` : `server-name` (identique au proxy), `server-display-name` (nom montré aux joueurs), `database`, `cache` (Redis), `teleport`,
-`language` (langue par défaut et palette). Les plugins n'ont plus que leurs réglages propres.
+`language` (langue par défaut, préfixe des messages et palette). Les plugins n'ont plus que leurs réglages propres.
