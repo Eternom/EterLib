@@ -8,6 +8,7 @@ import fr.eternom.eterLib.helper.sql.Row;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -104,6 +105,13 @@ public class PlayerDirectory {
         return database.query("SELECT COUNT(*) AS online FROM " + database.table(TABLE)
                         + " WHERE server IS NOT NULL AND last_seen > ?", since)
                 .stream().findFirst().map(row -> row.getInt("online")).orElse(0);
+    }
+
+    /** Joueurs connectés sur tout le réseau (ex : compléter un pseudo avec Tab). */
+    public List<NetworkPlayer> listOnline() {
+        long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
+        return database.query("SELECT * FROM " + database.table(TABLE) + " WHERE server IS NOT NULL AND last_seen > ?", since)
+                .stream().map(this::toPlayer).toList();
     }
 
     public Optional<NetworkPlayer> get(UUID uuid) {

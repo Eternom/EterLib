@@ -4,6 +4,7 @@ import fr.eternom.eterLib.core.Cache;
 import fr.eternom.eterLib.core.Lang;
 import fr.eternom.eterLib.core.Sql;
 import fr.eternom.eterLib.helper.cache.RedisCache;
+import fr.eternom.eterLib.helper.cache.RedisMessenger;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
@@ -31,6 +32,7 @@ import java.util.Map;
  *     Database database = lib.database("eterhome_");          // ses tables : eterhome_*
  *     Messages messages = lib.messages(this, "en_us", "fr_fr"); // son dossier lang/
  *     RedisCache redis = lib.getRedis();                       // null si Redis est désactivé
+ *     RedisMessenger messenger = lib.getMessenger();           // messages entre serveurs, null sans Redis
  * </pre>
  */
 public final class EterLib extends JavaPlugin {
@@ -42,9 +44,11 @@ public final class EterLib extends JavaPlugin {
     private static EterLib instance;
 
     private String serverName;
+    private String serverDisplayName;
     private Sql sql;
     private Cache cache;
     private RedisCache redis;
+    private RedisMessenger messenger;
     private String defaultLocale;
     private Map<String, String> colors;
     private Messages messages;
@@ -98,6 +102,10 @@ public final class EterLib extends JavaPlugin {
         if (serverName.isEmpty()) {
             throw new IllegalStateException("'server-name' est vide dans EterLib/config.yml : mets le nom de ce serveur dans le proxy");
         }
+        serverDisplayName = getConfig().getString("server-display-name", "").trim();
+        if (serverDisplayName.isEmpty()) {
+            serverDisplayName = serverName;
+        }
         defaultLocale = getConfig().getString("language.default", "en_us");
         colors = new HashMap<>();
         ConfigurationSection colorSection = getConfig().getConfigurationSection("language.colors");
@@ -110,6 +118,7 @@ public final class EterLib extends JavaPlugin {
         cache = new Cache(this);
         cache.connect();
         redis = cache.isEnabled() ? new RedisCache(cache) : null;
+        messenger = cache.isEnabled() ? new RedisMessenger(cache, getLogger()) : null;
         messages = messages(this, "en_us", "fr_fr");
 
         Database database = database(TABLE_PREFIX);
@@ -132,6 +141,9 @@ public final class EterLib extends JavaPlugin {
     @Override
     public void onDisable() {
         instance = null;
+        if (messenger != null) {
+            messenger.close();
+        }
         if (cache != null) {
             cache.close();
         }
@@ -155,6 +167,16 @@ public final class EterLib extends JavaPlugin {
     /** Nom de ce serveur dans le proxy (Velocity/BungeeCord). */
     public String getServerName() {
         return serverName;
+    }
+
+    /** Nom de ce serveur montré aux joueurs (server-display-name, sinon server-name), ex : "Survie". */
+    public String getServerDisplayName() {
+        return serverDisplayName;
+    }
+
+    /** Messages entre serveurs (Redis pub/sub) ; null si Redis est désactivé. */
+    public RedisMessenger getMessenger() {
+        return messenger;
     }
 
     /** null si Redis est désactivé (cache.enabled: false). */

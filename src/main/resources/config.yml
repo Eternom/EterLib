@@ -18,6 +18,10 @@
 
 server-name: ''
 
+# Nom de CE serveur tel que les joueurs le voient (chat...), ex : "Survie".
+# Vide : server-name est utilisé.
+server-display-name: ''
+
 # ============================================================
 #  Base de données (MySQL ou MariaDB)
 # ============================================================
@@ -61,7 +65,8 @@ database:
 #  toujours la source de vérité.
 #
 #   enabled: false | Pas de Redis : tout est lu en base. EterHome fonctionne,
-#                  | EterEssential refuse de démarrer (Redis obligatoire).
+#                  | le chat d'EterChat reste limité à chaque serveur,
+#                  | EterSync et EterEssential refusent de démarrer.
 #   enabled: true  | Redis partagé entre tous les serveurs du réseau.
 #
 #  Tout le réseau doit être avec Redis, ou tout le réseau sans : jamais à moitié.
