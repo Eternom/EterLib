@@ -9,6 +9,7 @@ import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
 import fr.eternom.eterLib.module.combat.CombatTracker;
+import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
 import fr.eternom.eterLib.module.server.ServerDirectory;
 import fr.eternom.eterLib.module.teleport.TeleportCooldown;
@@ -41,6 +42,7 @@ public final class EterLib extends JavaPlugin {
     /** Préfixe des tables d'EterLib lui-même (eter_players...). */
     private static final String TABLE_PREFIX = "eter_";
     private static final long HEARTBEAT_TICKS = 60 * 20;
+    private static final long NAMES_REFRESH_TICKS = 10 * 20;
 
     private static EterLib instance;
 
@@ -55,6 +57,7 @@ public final class EterLib extends JavaPlugin {
     private Messages messages;
     private PlayerDirectory players;
     private ServerDirectory servers;
+    private OnlineNames onlineNames;
     private CombatTracker combat;
     private TeleportWarmup warmup;
     private TeleportService teleports;
@@ -141,6 +144,8 @@ public final class EterLib extends JavaPlugin {
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
         // Un serveur démarré plus tard (ou renommé) apparaît dans la minute
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, servers::refresh, HEARTBEAT_TICKS, HEARTBEAT_TICKS);
+        onlineNames = new OnlineNames(players);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, onlineNames::refresh, 20, NAMES_REFRESH_TICKS);
 
         instance = this;
     }
@@ -201,6 +206,11 @@ public final class EterLib extends JavaPlugin {
 
     public PlayerDirectory getPlayers() {
         return players;
+    }
+
+    /** Pseudos des joueurs connectés (ce serveur et le réseau), pour la complétion avec Tab. */
+    public OnlineNames getOnlineNames() {
+        return onlineNames;
     }
 
     public TeleportService getTeleports() {

@@ -7,6 +7,7 @@ import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.helper.sql.Row;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterLib.module.combat.CombatTracker;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -80,6 +81,15 @@ public class TeleportService {
 
     /** Point d'entrée des plugins : vérifie les règles puis téléporte. Thread principal. */
     public void teleport(Player player, Destination destination) {
+        teleport(player, destination, () -> {
+        });
+    }
+
+    /**
+     * Idem ; onDeparture est lancé (thread principal) seulement si le joueur part vraiment, pas si l'attente est annulée
+     * ou la destination inaccessible. Ex : démarrer le délai propre à /rtp.
+     */
+    public void teleport(Player player, Destination destination, Runnable onDeparture) {
         if (inCombat(player)) {
             return;
         }
@@ -92,7 +102,11 @@ public class TeleportService {
             }
             warmup.start(player, destination.label(), () -> {
                 // Un coup donné ou reçu pendant l'attente compte aussi
-                if (!inCombat(player) && move(player, destination) && checkCooldown) {
+                if (inCombat(player) || !move(player, destination)) {
+                    return;
+                }
+                onDeparture.run();
+                if (checkCooldown) {
                     Tasks.async(plugin, () -> cooldown.start(uuid), "Cooldown non enregistré pour " + player.getName());
                 }
             });
@@ -117,6 +131,14 @@ public class TeleportService {
         return takePending(traveller).filter(destination -> destination.isOn(serverName)).map(Destination::resolve);
     }
 
+    /**
+     * Départ immédiat, sans aucune règle (combat, délai, attente) : pour le staff (/tp, /tphere). Thread principal.
+     * @return false si la destination est inaccessible
+     */
+    public boolean teleportNow(Player player, Destination destination) {
+        return move(player, destination);
+    }
+
     /** Départ immédiat, sans règles. @return false si la destination est inaccessible */
     private boolean move(Player player, Destination destination) {
         if (destination.isOn(serverName)) {
@@ -126,6 +148,7 @@ public class TeleportService {
                         "destination", destination.label());
                 return false;
             }
+            Bukkit.getPluginManager().callEvent(new EterTeleportEvent(player, player.getLocation(), destination));
             TeleportEffects.burst(player.getLocation());
             player.teleportAsync(location).thenAccept(success -> {
                 if (success) {
@@ -135,6 +158,7 @@ public class TeleportService {
             return true;
         }
 
+        Bukkit.getPluginManager().callEvent(new EterTeleportEvent(player, player.getLocation(), destination));
         UUID traveller = player.getUniqueId();
         Tasks.async(plugin, player, () -> {
             savePending(traveller, destination);

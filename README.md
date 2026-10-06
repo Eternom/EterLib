@@ -15,9 +15,11 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) : clics annulés, double-clic protégé |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `listOnline()` |
+| `module/player/OnlineNames` | Pseudos connectés (ce serveur + réseau, relus toutes les 10 s) pour la complétion avec Tab : `lib.getOnlineNames().complete(début, réseau)` |
 | `module/server/ServerDirectory` | Table `eter_servers` : nom affiché de chaque serveur (`server-display-name`), pour que tous les plugins Paper affichent les mêmes noms : `lib.getServerDisplayName("survival")` → « Survie » |
 | `module/server/ServerNameListener` | Envoie `server-display-name` au proxy (canal `eter:server`, à chaque arrivée de joueur) : EterTab-Velocity n'a pas de liste de noms à tenir |
-| `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur |
+| `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur ; `teleport(joueur, destination, auDépart)` pour agir seulement si le joueur part vraiment ; `teleportNow` sans aucune règle (staff) |
+| `module/teleport/EterTeleportEvent` | Événement Bukkit lancé juste avant chaque départ, même vers un autre serveur (que le `PlayerTeleportEvent` de Paper ne voit pas) : position quittée et destination, ex : `/back` |
 
 ## Utilisation dans un plugin
 
