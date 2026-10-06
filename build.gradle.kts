@@ -22,7 +22,7 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
-// Les autres plugins compilent contre EterLib : com.github.nadtum-create:EterLib:<version>.
+// Les autres plugins compilent contre EterLib : com.github.Eternom:EterLib:<version>.
 // - n'importe où : JitPack compile le tag GitHub correspondant (voir jitpack.yml) ;
 // - en local : `gradlew publishToMavenLocal` publie sous les mêmes coordonnées, pour tester avant de pousser.
 publishing {

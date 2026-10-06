@@ -25,7 +25,7 @@ repositories {
     mavenLocal()                  // repli : copie publiée sur ta machine avec `gradlew publishToMavenLocal`
 }
 dependencies {
-    compileOnly("com.github.nadtum-create:EterLib:1.0.0")
+    compileOnly("com.github.Eternom:EterLib:1.0.0")
 }
 ```
 
