@@ -19,3 +19,8 @@ teleport:
   sending: "<info>Envoi vers <accent><server></accent>..."
   world-missing: "<error>Le monde de <accent><destination></accent> n'existe plus."
   target-gone: "<error><accent><destination></accent> n'est plus là."
+
+menu:
+  back: "<accent>« Retour"
+  back-lore: "<dark_gray>▸ <info><command>"
+  close: "<error>Fermer"

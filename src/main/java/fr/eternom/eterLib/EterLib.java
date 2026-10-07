@@ -5,6 +5,7 @@ import fr.eternom.eterLib.core.Lang;
 import fr.eternom.eterLib.core.Sql;
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.cache.RedisMessenger;
+import fr.eternom.eterLib.helper.gui.BackButton;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
@@ -171,6 +172,14 @@ public final class EterLib extends JavaPlugin {
     /** Accès aux tables d'un plugin, préfixées par tablePrefix (ex : "eterhome_" -> eterhome_homes). */
     public Database database(String tablePrefix) {
         return new Database(sql, tablePrefix);
+    }
+
+    /**
+     * Bouton « Retour » / « Fermer » d'un menu : command vide = fermer le menu, sinon la commande lancée pour le
+     * joueur (ex : "profile"), pour relier les menus. À lire dans la config du plugin (menus.<menu>.back-command).
+     */
+    public BackButton backButton(String command) {
+        return new BackButton(command, messages);
     }
 
     /** Messages d'un plugin : son dossier lang/, avec la langue par défaut et la palette communes. */
