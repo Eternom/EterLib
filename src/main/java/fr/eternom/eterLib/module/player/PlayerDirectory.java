@@ -107,6 +107,16 @@ public class PlayerDirectory {
                 .stream().findFirst().map(row -> row.getInt("online")).orElse(0);
     }
 
+    /** Joueurs connectés par serveur (sélecteur de serveurs d'un lobby). Bloquant (base). */
+    public Map<String, Integer> countByServer() {
+        long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
+        Map<String, Integer> counts = new HashMap<>();
+        database.query("SELECT server, COUNT(*) AS online FROM " + database.table(TABLE)
+                        + " WHERE server IS NOT NULL AND last_seen > ? GROUP BY server", since)
+                .forEach(row -> counts.put(row.getString("server"), row.getInt("online")));
+        return counts;
+    }
+
     /** Joueurs connectés sur tout le réseau (ex : compléter un pseudo avec Tab). */
     public List<NetworkPlayer> listOnline() {
         long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();

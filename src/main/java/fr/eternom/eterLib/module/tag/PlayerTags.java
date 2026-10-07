@@ -1,4 +1,4 @@
-package fr.eternom.eterLib.module.tab;
+package fr.eternom.eterLib.module.tag;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,13 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
- * Étiquettes d'un joueur dans la liste Tab du réseau (dessinée par EterTab-Velocity sur le proxy), canal eter:tab :
- * un plugin Paper pose un texte MiniMessage sous un nom (ex : "job" -> " · Mineur (2)"), le proxy l'affiche à la place
- * de <tag_job> dans tab.player-format. Le proxy garde les étiquettes jusqu'à la déconnexion, même sur un serveur qui
- * ne les pose pas. Seul un texte qui change est renvoyé ; tout est renvoyé quand le joueur arrive sur ce serveur.
- * Thread principal. Le texte n'est jamais une saisie de joueur (il est interprété par MiniMessage sur le proxy).
+ * Étiquettes d'un joueur : un plugin Paper pose un texte MiniMessage sous un nom (ex : "job" -> « Métier Mineur (2) »),
+ * affiché à la place de <tag_job> :
+ * - dans la sidebar d'EterTab-Paper (ce serveur), dans la langue du joueur ;
+ * - dans la liste Tab du réseau (EterTab-Velocity, canal eter:tab), qui les garde jusqu'à la déconnexion.
+ * Seul un texte qui change est renvoyé au proxy ; tout est renvoyé quand le joueur arrive sur ce serveur.
+ * Thread principal. Le texte n'est jamais une saisie de joueur (il est interprété par MiniMessage).
  */
-public class TabTags implements Listener {
+public class PlayerTags implements Listener {
 
     public static final String CHANNEL = "eter:tab";
     private static final Pattern NAME = Pattern.compile("[a-z0-9_]{1,32}");
@@ -33,7 +34,7 @@ public class TabTags implements Listener {
     private final JavaPlugin plugin;
     private final Map<UUID, Map<String, String>> tags = new ConcurrentHashMap<>();
 
-    public TabTags(JavaPlugin plugin) {
+    public PlayerTags(JavaPlugin plugin) {
         this.plugin = plugin;
         Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, CHANNEL);
     }
@@ -53,6 +54,11 @@ public class TabTags implements Listener {
 
     public void remove(Player player, String name) {
         set(player, name, "");
+    }
+
+    /** Texte de l'étiquette name du joueur, "" si absente. */
+    public String get(Player player, String name) {
+        return tags.getOrDefault(player.getUniqueId(), Map.of()).getOrDefault(name, "");
     }
 
     /** Le proxy déclare le canal à l'arrivée du joueur sur ce serveur : on lui renvoie tout. */

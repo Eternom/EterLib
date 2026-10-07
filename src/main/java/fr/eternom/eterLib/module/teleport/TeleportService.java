@@ -169,7 +169,7 @@ public class TeleportService {
         }, server -> {
             messages.send(player, "teleport.sending", "server", servers.displayName(server));
             TeleportEffects.burst(player.getLocation());
-            sendToServer(player, server);
+            connect(player, server);
         }, () -> messages.send(player, "error.generic"));
         return true;
     }
@@ -241,7 +241,11 @@ public class TeleportService {
                 Float.parseFloat(parts[5]), parts[0].isEmpty() ? null : UUID.fromString(parts[0]), "");
     }
 
-    private void sendToServer(Player player, String server) {
+    /**
+     * Envoie le joueur sur un autre serveur, sans règle de téléportation (attente, combat, cooldown) ni position :
+     * il arrive où ce serveur place les nouveaux venus (ex : sélecteur de serveurs d'un lobby).
+     */
+    public void connect(Player player, String server) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (DataOutputStream out = new DataOutputStream(bytes)) {
             out.writeUTF("Connect");

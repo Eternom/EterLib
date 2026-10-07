@@ -16,7 +16,7 @@ import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
 import fr.eternom.eterLib.module.server.ServerDirectory;
-import fr.eternom.eterLib.module.tab.TabTags;
+import fr.eternom.eterLib.module.tag.PlayerTags;
 import fr.eternom.eterLib.module.teleport.TeleportCooldown;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
@@ -48,6 +48,7 @@ public final class EterLib extends JavaPlugin {
     /** Préfixe des tables d'EterLib lui-même (eter_players...). */
     private static final String TABLE_PREFIX = "eter_";
     private static final long HEARTBEAT_TICKS = 60 * 20;
+    private static final long SERVER_HEARTBEAT_TICKS = 20 * 20;
     private static final long NAMES_REFRESH_TICKS = 10 * 20;
     /** Préfixe de tous les messages des plugins Eter si language.prefix est absent (ancienne config). */
     private static final String DEFAULT_PREFIX = "<gradient:#FF7A00:#FFB347><bold>Core</bold></gradient> <dark_gray>» ";
@@ -73,7 +74,7 @@ public final class EterLib extends JavaPlugin {
     private TeleportWarmup warmup;
     private TeleportService teleports;
     private final SidebarOverrides sidebars = new SidebarOverrides();
-    private TabTags tabTags;
+    private PlayerTags playerTags;
 
     public static EterLib get() {
         if (instance == null) {
@@ -144,21 +145,20 @@ public final class EterLib extends JavaPlugin {
         ConfigurationSection teleport = getConfig().getConfigurationSection("teleport");
         players = new PlayerDirectory(database, redis, serverName);
         players.clearServer();
-        servers = new ServerDirectory(database);
-        servers.register(serverName, serverDisplayName);
-        servers.refresh();
+        servers = new ServerDirectory(database, serverName);
+        servers.register(serverDisplayName);
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         TeleportCooldown cooldown = new TeleportCooldown(database, redis, seconds(teleport, "cooldown", 30));
         teleports = new TeleportService(this, database, redis, messages, serverName, servers, warmup, cooldown, combat);
-        tabTags = new TabTags(this);
+        playerTags = new PlayerTags(this);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
-        // Un serveur démarré plus tard (ou renommé) apparaît dans la minute
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, servers::refresh, HEARTBEAT_TICKS, HEARTBEAT_TICKS);
+        // Signe de vie de ce serveur, et état des autres (en ligne, nom affiché), toutes les 20 s
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, servers::heartbeat, SERVER_HEARTBEAT_TICKS, SERVER_HEARTBEAT_TICKS);
         onlineNames = new OnlineNames(players);
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, onlineNames::refresh, 20, NAMES_REFRESH_TICKS);
 
@@ -265,9 +265,14 @@ public final class EterLib extends JavaPlugin {
         return sidebars;
     }
 
-    /** Étiquettes d'un joueur dans la liste Tab du réseau (EterTab-Velocity), ex : son métier : <tag_job>. */
-    public TabTags getTabTags() {
-        return tabTags;
+    /** Étiquettes d'un joueur (<tag_nom>) pour la sidebar d'EterTab et la liste Tab du réseau, ex : son métier. */
+    public PlayerTags getPlayerTags() {
+        return playerTags;
+    }
+
+    /** Serveurs du réseau : nom affiché, en ligne ou non (relu toutes les 20 s). */
+    public ServerDirectory getServers() {
+        return servers;
     }
 
     public CombatTracker getCombat() {

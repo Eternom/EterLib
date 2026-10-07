@@ -11,12 +11,12 @@ import org.bukkit.event.Listener;
 public class Events {
 
     public Events(EterLib lib, boolean cancelWarmupOnDamage) {
-        register(lib, new PlayerListener(lib, lib.getPlayers()));
+        register(lib, new PlayerListener(lib, lib.getPlayers(), lib.getConfig().getBoolean("vanilla-join-quit-messages", false)));
         register(lib, new CombatListener(lib.getCombat()));
         register(lib, new TeleportListener(lib, lib.getTeleports(), lib.getWarmup(), cancelWarmupOnDamage));
         register(lib, new MenuListener(lib));
         register(lib, new ServerNameListener(lib, lib.getServerName(), lib.getServerDisplayName()));
-        register(lib, lib.getTabTags());
+        register(lib, lib.getPlayerTags());
     }
 
     private void register(EterLib lib, Listener listener) {

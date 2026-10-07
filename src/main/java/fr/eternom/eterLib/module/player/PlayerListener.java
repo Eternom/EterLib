@@ -11,19 +11,27 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Locale;
 import java.util.UUID;
 
-/** Tient eter_players et la présence à jour à chaque connexion et déconnexion. */
+/**
+ * Tient eter_players et la présence à jour à chaque connexion et déconnexion, et coupe les messages d'arrivée et de
+ * départ de Minecraft (vanilla-join-quit-messages) : en réseau, le proxy les annonce une seule fois.
+ */
 public class PlayerListener implements Listener {
 
     private final JavaPlugin plugin;
     private final PlayerDirectory directory;
+    private final boolean vanillaMessages;
 
-    public PlayerListener(JavaPlugin plugin, PlayerDirectory directory) {
+    public PlayerListener(JavaPlugin plugin, PlayerDirectory directory, boolean vanillaMessages) {
         this.plugin = plugin;
         this.directory = directory;
+        this.vanillaMessages = vanillaMessages;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        if (!vanillaMessages) {
+            event.joinMessage(null);
+        }
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         String name = player.getName();
@@ -33,6 +41,9 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        if (!vanillaMessages) {
+            event.quitMessage(null);
+        }
         UUID uuid = event.getPlayer().getUniqueId();
         Tasks.async(plugin, () -> directory.quit(uuid), "Déconnexion non enregistrée dans eter_players : " + uuid);
     }

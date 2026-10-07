@@ -24,6 +24,11 @@ server-name: ''
 # Vide : server-name est utilisé.
 server-display-name: ''
 
+# Messages « X a rejoint la partie » / « X a quitté la partie » de Minecraft sur CE serveur.
+# false (conseillé en réseau) : coupés, c'est le proxy (EterVelocityLobby) qui annonce une seule fois
+# l'arrivée et le départ du RÉSEAU, pas chaque changement de serveur.
+vanilla-join-quit-messages: false
+
 # ============================================================
 #  Base de données (MySQL ou MariaDB)
 # ============================================================
