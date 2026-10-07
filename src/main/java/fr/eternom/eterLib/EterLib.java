@@ -15,6 +15,7 @@ import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
 import fr.eternom.eterLib.module.server.ServerDirectory;
+import fr.eternom.eterLib.module.tab.TabTags;
 import fr.eternom.eterLib.module.teleport.TeleportCooldown;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
@@ -69,6 +70,7 @@ public final class EterLib extends JavaPlugin {
     private TeleportWarmup warmup;
     private TeleportService teleports;
     private final SidebarOverrides sidebars = new SidebarOverrides();
+    private TabTags tabTags;
 
     public static EterLib get() {
         if (instance == null) {
@@ -147,6 +149,7 @@ public final class EterLib extends JavaPlugin {
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         TeleportCooldown cooldown = new TeleportCooldown(database, redis, seconds(teleport, "cooldown", 30));
         teleports = new TeleportService(this, database, redis, messages, serverName, servers, warmup, cooldown, combat);
+        tabTags = new TabTags(this);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
@@ -242,6 +245,11 @@ public final class EterLib extends JavaPlugin {
     /** Sidebar temporaire d'un joueur (ex : quête suivie), dessinée par EterTab à la place de la sienne. */
     public SidebarOverrides getSidebars() {
         return sidebars;
+    }
+
+    /** Étiquettes d'un joueur dans la liste Tab du réseau (EterTab-Velocity), ex : son métier : <tag_job>. */
+    public TabTags getTabTags() {
+        return tabTags;
     }
 
     public CombatTracker getCombat() {

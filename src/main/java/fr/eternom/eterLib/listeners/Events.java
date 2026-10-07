@@ -16,6 +16,7 @@ public class Events {
         register(lib, new TeleportListener(lib, lib.getTeleports(), lib.getWarmup(), cancelWarmupOnDamage));
         register(lib, new MenuListener(lib));
         register(lib, new ServerNameListener(lib, lib.getServerName(), lib.getServerDisplayName()));
+        register(lib, lib.getTabTags());
     }
 
     private void register(EterLib lib, Listener listener) {
