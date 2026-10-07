@@ -8,6 +8,7 @@ import fr.eternom.eterLib.helper.cache.RedisMessenger;
 import fr.eternom.eterLib.helper.gui.BackButton;
 import fr.eternom.eterLib.helper.message.Durations;
 import fr.eternom.eterLib.helper.message.Messages;
+import fr.eternom.eterLib.helper.sidebar.SidebarOverrides;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
 import fr.eternom.eterLib.module.combat.CombatTracker;
@@ -67,6 +68,7 @@ public final class EterLib extends JavaPlugin {
     private CombatTracker combat;
     private TeleportWarmup warmup;
     private TeleportService teleports;
+    private final SidebarOverrides sidebars = new SidebarOverrides();
 
     public static EterLib get() {
         if (instance == null) {
@@ -235,6 +237,11 @@ public final class EterLib extends JavaPlugin {
 
     public TeleportService getTeleports() {
         return teleports;
+    }
+
+    /** Sidebar temporaire d'un joueur (ex : quête suivie), dessinée par EterTab à la place de la sienne. */
+    public SidebarOverrides getSidebars() {
+        return sidebars;
     }
 
     public CombatTracker getCombat() {

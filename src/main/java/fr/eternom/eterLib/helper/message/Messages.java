@@ -59,6 +59,18 @@ public class Messages {
         return MINI_MESSAGE.deserialize(raw, colors, placeholders(placeholders));
     }
 
+    /**
+     * Comme get, avec des balises en plus : des valeurs déjà mises en forme, ex : le nom d'un objet traduit par le
+     * client, Placeholder.component("item", Component.translatable(material.translationKey())).
+     */
+    public Component get(CommandSender receiver, String key, TagResolver tags, String... placeholders) {
+        String raw = lang.get(localeOf(receiver), key);
+        if (raw == null) {
+            return Component.text(key, NamedTextColor.RED);
+        }
+        return MINI_MESSAGE.deserialize(raw, colors, tags, placeholders(placeholders));
+    }
+
     /** Texte sans mise en forme, ex : pour comparer avec ce que le joueur a écrit dans le chat. */
     public String plain(CommandSender receiver, String key, String... placeholders) {
         return PlainTextComponentSerializer.plainText().serialize(get(receiver, key, placeholders));
