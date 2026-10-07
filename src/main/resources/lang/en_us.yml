@@ -24,3 +24,9 @@ menu:
   back: "<accent>« Back"
   back-lore: "<dark_gray>▸ <info><command>"
   close: "<error>Close"
+
+time:
+  days-hours: "<days>d <hours>h"
+  hours-minutes: "<hours>h <minutes>min"
+  minutes-seconds: "<minutes>min <seconds>s"
+  seconds: "<seconds>s"

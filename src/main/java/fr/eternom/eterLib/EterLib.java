@@ -6,6 +6,7 @@ import fr.eternom.eterLib.core.Sql;
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.cache.RedisMessenger;
 import fr.eternom.eterLib.helper.gui.BackButton;
+import fr.eternom.eterLib.helper.message.Durations;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
@@ -17,6 +18,7 @@ import fr.eternom.eterLib.module.teleport.TeleportCooldown;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -172,6 +174,11 @@ public final class EterLib extends JavaPlugin {
     /** Accès aux tables d'un plugin, préfixées par tablePrefix (ex : "eterhome_" -> eterhome_homes). */
     public Database database(String tablePrefix) {
         return new Database(sql, tablePrefix);
+    }
+
+    /** Durée lisible dans la langue du joueur ("2 j 3 h", "30 min 5 s"...), avec les textes d'EterLib. */
+    public String formatDuration(CommandSender receiver, long seconds) {
+        return Durations.format(messages, receiver, seconds);
     }
 
     /**

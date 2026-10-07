@@ -13,6 +13,7 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/cache/RedisMessenger` | Messages entre serveurs (pub/sub) : `publish`, `subscribe` ; un seul fil d'écoute, reconnexion automatique, messages perdus pendant une coupure |
 | `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune ; **préfixe commun à tous les plugins** (`language.prefix`, « Core » par défaut, `messages.prefix()`) ; `raw` + `render` pour retravailler un texte (PlaceholderAPI, lignes) |
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) : clics annulés, double-clic protégé ; `BackButton` (`lib.backButton(commande)`) : bouton « Retour » qui lance une commande pour relier les menus (réglée dans la config de chaque plugin, `menus.<menu>.back-command`), ou « Fermer » si elle est vide |
+| `helper/message/Durations` | Durée lisible dans la langue du joueur (« 2 j 3 h », « 30 min 5 s ») : `lib.formatDuration(joueur, secondes)` |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `listOnline()` |
 | `module/player/OnlineNames` | Pseudos connectés (ce serveur + réseau, relus toutes les 10 s) pour la complétion avec Tab : `lib.getOnlineNames().complete(début, réseau)` |
