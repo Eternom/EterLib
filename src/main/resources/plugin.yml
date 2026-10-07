@@ -4,6 +4,7 @@ version: '${version}'
 main: fr.eternom.eterLib.EterLib
 api-version: '26.2'
 load: POSTWORLD
+softdepend: [Vault]
 authors: [ NadTum ]
 description: Socle commun des plugins Eter (base, Redis, langue, joueurs, téléportation).
 

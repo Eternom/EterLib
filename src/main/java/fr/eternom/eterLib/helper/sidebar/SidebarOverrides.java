@@ -37,11 +37,6 @@ public final class SidebarOverrides {
         overrides.computeIfPresent(player, (uuid, entry) -> entry.owner().equals(owner) ? null : entry);
     }
 
-    public boolean isShown(UUID player, String owner) {
-        Entry entry = overrides.get(player);
-        return entry != null && entry.owner().equals(owner);
-    }
-
     /** Thread principal : la sidebar temporaire du joueur, ou null pour la sidebar habituelle. */
     public Content content(Player player) {
         Entry entry = overrides.get(player.getUniqueId());

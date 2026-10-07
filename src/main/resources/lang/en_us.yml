@@ -1,12 +1,25 @@
-# EterLib messages (shared teleport rules), MiniMessage format: https://docs.advntr.dev/minimessage/format
+# EterLib messages (texts shared by every plugin, teleport, menus, durations), MiniMessage format: https://docs.advntr.dev/minimessage/format
 # Palette tags (EterLib/config.yml > language.colors): <primary> <accent> <info> <error> <success>
 #   <info> = normal light gray text, <accent> = important words in orange.
 # Values between <> such as <destination> are filled in by the plugin. To show a literal "<", write \< inside 'single quotes'.
 # A missing key falls back to the plugin's built-in text: you only need to keep the lines you change.
 # The message prefix ("Core") is shared by all plugins: EterLib/config.yml > language.prefix.
 
+# Common texts: used by every plugin that does not redefine them.
+command:
+  players-only: "<error>This command can only be used by players."
+
 error:
   generic: "<error>Something went wrong, please try again later."
+
+economy:
+  unavailable: "<error>The economy is not available right now."
+
+dialog:
+  cancel: "Cancel"
+
+player:
+  unknown: "<error>Unknown player: <accent><player></accent>."
 
 teleport:
   warmup-start: "<info>Teleporting in <accent><time>s</accent>, don't move!"

@@ -1,12 +1,25 @@
-# Messages d'EterLib (règles de téléportation communes), format MiniMessage : https://docs.advntr.dev/minimessage/format
+# Messages d'EterLib (textes communs à tous les plugins, téléportation, menus, durées), format MiniMessage : https://docs.advntr.dev/minimessage/format
 # Balises de la palette (EterLib/config.yml > language.colors) : <primary> <accent> <info> <error> <success>
 #   <info> = texte courant gris clair, <accent> = mots importants en orange.
 # Les valeurs entre <> comme <destination> sont remplies par le plugin. Pour afficher un "<", écrire \< entre 'guillemets simples'.
 # Une clé absente reprend le texte intégré au plugin : tu peux ne garder que les lignes que tu modifies.
 # Le préfixe des messages (« Core ») est commun à tous les plugins : EterLib/config.yml > language.prefix.
 
+# Textes communs : repris par tous les plugins qui ne les redéfinissent pas.
+command:
+  players-only: "<error>Commande réservée aux joueurs."
+
 error:
   generic: "<error>Une erreur est survenue, réessaie plus tard."
+
+economy:
+  unavailable: "<error>L'économie n'est pas disponible pour le moment."
+
+dialog:
+  cancel: "Annuler"
+
+player:
+  unknown: "<error>Joueur inconnu : <accent><player></accent>."
 
 teleport:
   warmup-start: "<info>Téléportation dans <accent><time>s</accent>, ne bouge pas !"

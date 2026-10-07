@@ -3,6 +3,7 @@ package fr.eternom.eterLib;
 import fr.eternom.eterLib.core.Cache;
 import fr.eternom.eterLib.core.Lang;
 import fr.eternom.eterLib.core.Sql;
+import fr.eternom.eterLib.helper.cache.NetworkBus;
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.cache.RedisMessenger;
 import fr.eternom.eterLib.helper.gui.BackButton;
@@ -63,6 +64,8 @@ public final class EterLib extends JavaPlugin {
     private Map<String, String> colors;
     private String prefix;
     private Messages messages;
+    /** Langues d'EterLib, textes communs repris par tous les plugins. */
+    private Lang ownLang;
     private PlayerDirectory players;
     private ServerDirectory servers;
     private OnlineNames onlineNames;
@@ -181,6 +184,14 @@ public final class EterLib extends JavaPlugin {
         return new Database(sql, tablePrefix);
     }
 
+    /**
+     * Messages d'un plugin entre les serveurs (Redis, canal channel) : types, gestionnaires sur le thread principal,
+     * et notify pour prévenir un joueur où qu'il soit. Sans Redis, rien ne part (isNetworked() = false).
+     */
+    public NetworkBus network(JavaPlugin plugin, String channel, Messages pluginMessages) {
+        return new NetworkBus(plugin, messenger, channel, pluginMessages, serverName);
+    }
+
     /** Durée lisible dans la langue du joueur ("2 j 3 h", "30 min 5 s"...), avec les textes d'EterLib. */
     public String formatDuration(CommandSender receiver, long seconds) {
         return Durations.format(messages, receiver, seconds);
@@ -194,10 +205,17 @@ public final class EterLib extends JavaPlugin {
         return new BackButton(command, messages);
     }
 
-    /** Messages d'un plugin : son dossier lang/, avec la langue par défaut et la palette communes. */
+    /**
+     * Messages d'un plugin : son dossier lang/, avec la langue par défaut et la palette communes. Une clé absente du
+     * plugin reprend le texte commun d'EterLib (command.players-only, error.generic, economy.unavailable, dialog.cancel,
+     * player.unknown...) : inutile de les répéter dans chaque plugin.
+     */
     public Messages messages(JavaPlugin plugin, String... bundledLocales) {
-        Lang lang = new Lang(plugin, defaultLocale, colors, prefix, bundledLocales);
+        Lang lang = new Lang(plugin, defaultLocale, colors, prefix, plugin == this ? null : ownLang, bundledLocales);
         lang.load();
+        if (plugin == this) {
+            ownLang = lang;
+        }
         return new Messages(lang);
     }
 

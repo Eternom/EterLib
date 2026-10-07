@@ -7,6 +7,8 @@ repositories {
     // PaperMC en premier : il fournit aussi les dépendances courantes, et Maven Central limite les builds JitPack (429)
     maven("https://repo.papermc.io/repository/maven-public/")
     mavenCentral()
+    // VaultAPI
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -18,6 +20,10 @@ dependencies {
     compileOnly("redis.clients:jedis:6.2.0")
     // Pilote JDBC : compatible MySQL et MariaDB
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.6")
+    // Montants (Money) : Vault, fourni par EterEconomy sur le serveur
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
+        exclude(group = "org.bukkit")
+    }
 }
 
 java {

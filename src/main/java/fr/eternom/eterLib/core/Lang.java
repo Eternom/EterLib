@@ -25,10 +25,16 @@ public class Lang {
     private final Map<String, String> colors;
     private final String prefix;
     private final String[] bundled;
+    private final Lang common;
     private final Map<String, YamlConfiguration> languages = new HashMap<>();
 
-    /** @param bundled langues fournies dans le jar du plugin (lang/<locale>.yml), ex : "en_us", "fr_fr" */
-    public Lang(JavaPlugin plugin, String defaultLocale, Map<String, String> colors, String prefix, String... bundled) {
+    /**
+     * @param common  langues d'EterLib : textes communs à tous les plugins (« Annuler », « Joueur inconnu »...), repris
+     *                quand le plugin n'a pas la clé ; null pour EterLib lui-même
+     * @param bundled langues fournies dans le jar du plugin (lang/<locale>.yml), ex : "en_us", "fr_fr"
+     */
+    public Lang(JavaPlugin plugin, String defaultLocale, Map<String, String> colors, String prefix, Lang common, String... bundled) {
+        this.common = common;
         this.plugin = plugin;
         this.defaultLocale = defaultLocale.toLowerCase(Locale.ROOT);
         this.colors = colors;
@@ -63,7 +69,7 @@ public class Lang {
 
     /**
      * Texte brut (MiniMessage) de key pour locale : langue exacte, sinon même langue d'une autre région
-     * (fr_ca -> fr_fr), sinon langue par défaut. null si la clé n'existe nulle part.
+     * (fr_ca -> fr_fr), sinon langue par défaut, sinon texte commun d'EterLib. null si la clé n'existe nulle part.
      */
     public String get(String locale, String key) {
         String value = find(languages.get(locale), key);
@@ -76,7 +82,10 @@ public class Lang {
                     .findFirst()
                     .orElse(null);
         }
-        return value != null ? value : find(languages.get(defaultLocale), key);
+        if (value == null) {
+            value = find(languages.get(defaultLocale), key);
+        }
+        return value == null && common != null ? common.get(locale, key) : value;
     }
 
     public String getDefaultLocale() {
