@@ -2,12 +2,13 @@
 # Gradle tourne sur Java 21 ; le JDK 25 demandé par le projet (toolchain) est téléchargé
 # automatiquement grâce au plugin foojay déclaré dans settings.gradle.kts.
 # Gradle est téléchargé directement depuis gradle.org et décompressé DANS le dossier du build : dans /tmp, partagé
-# entre builds, il arrivait incomplet (ClassNotFoundException: org.gradle.instrumentation.agent.Agent). En cas
-# d'échec, republier sous une nouvelle version (JitPack garde l'échec d'un tag).
+# entre builds, il arrivait incomplet (ClassNotFoundException: org.gradle.instrumentation.agent.Agent). L'agent est
+# aussi extrait dans le dossier utilisateur de Gradle (~/.gradle, partagé) : d'où GRADLE_USER_HOME dans le build (1.9.0 ratée).
+# En cas d'échec, republier sous une nouvelle version (JitPack garde l'échec d'un tag).
 jdk:
   - openjdk21
 before_install:
   - curl -fsSL -o gradle-dist.zip https://services.gradle.org/distributions/gradle-9.7.1-bin.zip
   - unzip -q -o gradle-dist.zip -d gradle-dist
 install:
-  - gradle-dist/gradle-9.7.1/bin/gradle publishToMavenLocal --no-daemon
+  - GRADLE_USER_HOME="$PWD/gradle-home" gradle-dist/gradle-9.7.1/bin/gradle publishToMavenLocal --no-daemon
