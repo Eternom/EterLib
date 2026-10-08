@@ -19,7 +19,7 @@ import java.util.logging.Level;
 /**
  * Messages d'un plugin entre les serveurs (Redis pub/sub, un canal par plugin) : chaque message a un type et des
  * données JSON ; le serveur d'origine ignore le sien ; les gestionnaires sont appelés sur le thread principal.
- * Sans Redis (ou Redis en panne), rien ne part : les fonctionnalités restent limitées au serveur où l'on est.
+ * Redis en panne : le message est perdu (avertissement dans la console, onFailure de publish).
  * Obtenu par lib.network(plugin, canal, messages).
  */
 public class NetworkBus {
@@ -28,7 +28,7 @@ public class NetworkBus {
     private static final long WARNING_INTERVAL_MILLIS = 60_000;
 
     private final JavaPlugin plugin;
-    private final RedisMessenger messenger; // null sans Redis
+    private final RedisMessenger messenger;
     private final String channel;
     private final Messages messages;
     private final String serverName;
@@ -47,14 +47,7 @@ public class NetworkBus {
                 notifyLocal(player, data.get("key").getAsString(), data.get("sound").getAsBoolean(), strings(data.getAsJsonArray("values")));
             }
         });
-        if (messenger != null) {
-            messenger.subscribe(channel, this::receive);
-        }
-    }
-
-    /** true si les messages traversent les serveurs (Redis actif). */
-    public boolean isNetworked() {
-        return messenger != null;
+        messenger.subscribe(channel, this::receive);
     }
 
     /** handler (thread principal) pour les messages de ce type venant des autres serveurs. */
@@ -69,10 +62,6 @@ public class NetworkBus {
 
     /** Envoie aux autres serveurs (en tâche de fond) ; onFailure sur le thread principal (appel depuis le thread principal) si Redis n'a pas pu transmettre. */
     public void publish(String type, JsonObject data, Runnable onFailure) {
-        if (messenger == null) {
-            onFailure.run();
-            return;
-        }
         JsonObject envelope = new JsonObject();
         envelope.addProperty("type", type);
         envelope.addProperty("origin", serverName);

@@ -19,7 +19,7 @@ import java.util.UUID;
  *
  * Présence : chaque serveur rafraîchit ses joueurs toutes les minutes ({@link #heartbeat()}). Un joueur dont la
  * présence n'a pas été rafraîchie depuis {@link #ONLINE_TIMEOUT} est considéré hors ligne (serveur planté).
- * Avec Redis, la présence y est aussi gardée avec un TTL : lecture plus rapide.
+ * La présence est aussi gardée dans Redis avec un TTL : lecture plus rapide.
  */
 public class PlayerDirectory {
 
@@ -35,7 +35,7 @@ public class PlayerDirectory {
     }
 
     private final Database database;
-    private final RedisCache redis; // null si Redis est désactivé
+    private final RedisCache redis;
     private final String serverName;
 
     public PlayerDirectory(Database database, RedisCache redis, String serverName) {
@@ -66,9 +66,7 @@ public class PlayerDirectory {
             database.insert(TABLE, Map.of("uuid", uuid, "name", name, "locale", locale, "server", serverName,
                     "first_seen", now, "last_seen", now));
         }
-        if (redis != null) {
-            redis.set(presenceKey(uuid), serverName, ONLINE_TIMEOUT);
-        }
+        redis.set(presenceKey(uuid), serverName, ONLINE_TIMEOUT);
     }
 
     /**
@@ -77,7 +75,7 @@ public class PlayerDirectory {
      */
     public void quit(UUID uuid) {
         database.update(TABLE, offline(System.currentTimeMillis()), Map.of("uuid", uuid, "server", serverName));
-        if (redis != null && redis.get(presenceKey(uuid)).filter(serverName::equals).isPresent()) {
+        if (redis.get(presenceKey(uuid)).filter(serverName::equals).isPresent()) {
             redis.delete(presenceKey(uuid));
         }
     }
@@ -86,17 +84,12 @@ public class PlayerDirectory {
     public void heartbeat(Iterable<UUID> online) {
         long now = System.currentTimeMillis();
         database.update(TABLE, Map.of("last_seen", now), Map.of("server", serverName));
-        if (redis != null) {
-            online.forEach(uuid -> redis.set(presenceKey(uuid), serverName, ONLINE_TIMEOUT));
-        }
+        online.forEach(uuid -> redis.set(presenceKey(uuid), serverName, ONLINE_TIMEOUT));
     }
 
     /** Serveur où le joueur est connecté, vide s'il est hors ligne. */
     public Optional<String> getServer(UUID uuid) {
-        if (redis != null) {
-            return redis.get(presenceKey(uuid));
-        }
-        return database.getFirst(TABLE, Map.of("uuid", uuid)).map(this::toPlayer).map(NetworkPlayer::server);
+        return redis.get(presenceKey(uuid));
     }
 
     /** Nombre de joueurs connectés sur tout le réseau (présence rafraîchie depuis moins de ONLINE_TIMEOUT). */

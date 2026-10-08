@@ -39,8 +39,8 @@ import java.util.Map;
  *     EterLib lib = EterLib.get();
  *     Database database = lib.database("eterhome_");          // ses tables : eterhome_*
  *     Messages messages = lib.messages(this, "en_us", "fr_fr"); // son dossier lang/
- *     RedisCache redis = lib.getRedis();                       // null si Redis est désactivé
- *     RedisMessenger messenger = lib.getMessenger();           // messages entre serveurs, null sans Redis
+ *     RedisCache redis = lib.getRedis();                       // Redis (obligatoire)
+ *     RedisMessenger messenger = lib.getMessenger();           // messages entre serveurs
  * </pre>
  */
 public final class EterLib extends JavaPlugin {
@@ -137,11 +137,13 @@ public final class EterLib extends JavaPlugin {
         sql.connect();
         cache = new Cache(this);
         cache.connect();
-        redis = cache.isEnabled() ? new RedisCache(cache) : null;
-        messenger = cache.isEnabled() ? new RedisMessenger(cache, getLogger()) : null;
+        redis = new RedisCache(cache);
+        messenger = new RedisMessenger(cache, getLogger());
         messages = messages(this, "en_us", "fr_fr");
 
         Database database = database(TABLE_PREFIX);
+        // Tables des replis sans Redis (avant 1.8.0, Redis obligatoire depuis) : pas de table morte dans la base
+        database.execute("DROP TABLE IF EXISTS " + database.table("pending_teleports") + ", " + database.table("teleport_cooldowns"));
         ConfigurationSection teleport = getConfig().getConfigurationSection("teleport");
         players = new PlayerDirectory(database, redis, serverName);
         players.clearServer();
@@ -150,8 +152,8 @@ public final class EterLib extends JavaPlugin {
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
-        TeleportCooldown cooldown = new TeleportCooldown(database, redis, seconds(teleport, "cooldown", 30));
-        teleports = new TeleportService(this, database, redis, messages, serverName, servers, warmup, cooldown, combat);
+        TeleportCooldown cooldown = new TeleportCooldown(redis, seconds(teleport, "cooldown", 30));
+        teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat);
         playerTags = new PlayerTags(this);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
@@ -186,7 +188,7 @@ public final class EterLib extends JavaPlugin {
 
     /**
      * Messages d'un plugin entre les serveurs (Redis, canal channel) : types, gestionnaires sur le thread principal,
-     * et notify pour prévenir un joueur où qu'il soit. Sans Redis, rien ne part (isNetworked() = false).
+     * et notify pour prévenir un joueur où qu'il soit.
      */
     public NetworkBus network(JavaPlugin plugin, String channel, Messages pluginMessages) {
         return new NetworkBus(plugin, messenger, channel, pluginMessages, serverName);
@@ -237,12 +239,12 @@ public final class EterLib extends JavaPlugin {
         return servers.displayName(serverName);
     }
 
-    /** Messages entre serveurs (Redis pub/sub) ; null si Redis est désactivé. */
+    /** Messages entre serveurs (Redis pub/sub). */
     public RedisMessenger getMessenger() {
         return messenger;
     }
 
-    /** null si Redis est désactivé (cache.enabled: false). */
+    /** Redis, obligatoire : jamais null une fois EterLib démarré. */
     public RedisCache getRedis() {
         return redis;
     }

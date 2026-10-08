@@ -67,20 +67,12 @@ database:
 #  Cache (Redis)
 # ============================================================
 #
-#  Redis garde les données souvent lues et sait qui est connecté où, pour
-#  éviter de redemander à la base à chaque fois. La base de données reste
-#  toujours la source de vérité.
-#
-#   enabled: false | Pas de Redis : tout est lu en base. EterHome fonctionne,
-#                  | le chat d'EterChat reste limité à chaque serveur,
-#                  | EterSync et EterEssential refusent de démarrer.
-#   enabled: true  | Redis partagé entre tous les serveurs du réseau.
-#
-#  Tout le réseau doit être avec Redis, ou tout le réseau sans : jamais à moitié.
+#  Redis est OBLIGATOIRE, le même pour tous les serveurs du réseau : il sait qui est
+#  connecté où, porte les messages entre serveurs (chat, /tpa...), les délais et les
+#  verrous d'EterSync. La base de données reste toujours la source de vérité.
+#  Injoignable au démarrage : EterLib (et donc tous les plugins Eter) ne démarre pas.
 
 cache:
-  enabled: false
-
   # Adresse et port du serveur Redis ("localhost" si même machine, port par défaut 6379).
   host: localhost
   port: 6379

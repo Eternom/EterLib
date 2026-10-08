@@ -7,11 +7,11 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 
 | Élément | Rôle |
 |---|---|
-| `core/Sql`, `core/Cache` | Un seul pool MySQL/MariaDB et un seul pool Redis (optionnel) pour tous les plugins |
+| `core/Sql`, `core/Cache` | Un seul pool MySQL/MariaDB et un seul pool Redis (**obligatoire** : injoignable, EterLib ne démarre pas) pour tous les plugins |
 | `helper/sql/Database` | Requêtes sans SQL brut ; une instance par plugin avec **son préfixe de tables** |
 | `helper/cache/RedisCache` | Clés Redis préfixées (`cache.prefix`), verrous (`setIfAbsent`, `deleteIfValue`) |
 | `helper/cache/RedisMessenger` | Messages entre serveurs (pub/sub) : `publish`, `subscribe` ; un seul fil d'écoute, reconnexion automatique, messages perdus pendant une coupure |
-| `helper/cache/NetworkBus` | Messages **d'un plugin** entre serveurs, sur la base de RedisMessenger : `lib.network(this, "canal", messages)`, `on(type, données -> …)` (thread principal, le serveur d'origine ignore le sien), `publish(type, json[, siÉchec])`, `notify(joueur, clé, son, variables…)` pour prévenir un joueur où qu'il soit ; sans Redis, rien ne part |
+| `helper/cache/NetworkBus` | Messages **d'un plugin** entre serveurs, sur la base de RedisMessenger : `lib.network(this, "canal", messages)`, `on(type, données -> …)` (thread principal, le serveur d'origine ignore le sien), `publish(type, json[, siÉchec])`, `notify(joueur, clé, son, variables…)` pour prévenir un joueur où qu'il soit |
 | `helper/economy/Money` | Économie Vault (fournie par EterEconomy) : `Money.economy()` (null sans économie), `Money.format(montant)` |
 | `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune ; **textes communs** (`command.players-only`, `error.generic`, `economy.unavailable`, `dialog.cancel`, `player.unknown`) dans les langues d'EterLib, repris par un plugin qui ne les a pas ; **préfixe commun à tous les plugins** (`language.prefix`, « Core » par défaut, `messages.prefix()`) ; `raw` + `render` pour retravailler un texte (PlaceholderAPI, lignes) ; `get(joueur, clé, balises, variables…)` pour insérer un texte déjà mis en forme (nom d'objet traduit par le client…) |
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) ; `Frame.draw(inventaire, couleur)` / `Frame.fill(…, cases du contenu)` : cadre commun (vitres grises, équerres de couleur aux coins : orange joueur, rouge admin) ; `Dialogs.show` : fenêtre native à deux boutons (saisie, confirmation), réponse sur le thread principal : clics annulés, double-clic protégé ; `BackButton` (`lib.backButton(commande)`) : bouton « Retour » qui lance une commande pour relier les menus (réglée dans la config de chaque plugin, `menus.<menu>.back-command`), ou « Fermer » si elle est vide |
@@ -19,7 +19,7 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/message/Durations` | Durée lisible dans la langue du joueur (« 2 j 3 h », « 30 min 5 s ») : `lib.formatDuration(joueur, secondes)` |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
 | `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `countByServer()`, `listOnline()` ; messages d'arrivée et de départ de Minecraft coupés (`vanilla-join-quit-messages: false`) : le proxy annonce l'arrivée sur le réseau |
-| `module/player/OnlineNames` | Pseudos connectés (ce serveur + réseau, relus toutes les 10 s) pour la complétion avec Tab : `lib.getOnlineNames().complete(début, réseau)` |
+| `module/player/OnlineNames` | Pseudos connectés (ce serveur + réseau, relus toutes les 10 s) pour la complétion avec Tab : `lib.getOnlineNames().complete(début)` |
 | `module/server/ServerDirectory` | Table `eter_servers` : nom affiché de chaque serveur (`server-display-name`) et signe de vie toutes les 20 s : `lib.getServerDisplayName("survival")` → « Survie », `lib.getServers().isOnline("survival")` (hors ligne après 60 s sans nouvelles) |
 | `module/server/ServerNameListener` | Canal `eter:server` avec EterTab-Velocity, à chaque arrivée de joueur : envoie `server-display-name` au proxy (pas de liste de noms à tenir sur Velocity) et reçoit le nom du serveur dans `velocity.toml` ; s'il diffère de `server-name`, **erreur claire dans la console** (sinon /home et les téléportations se trompent sans rien dire) |
 | `module/tag/PlayerTags` | Étiquettes d'un joueur posées par les plugins (`lib.getPlayerTags().set(joueur, "job", texte)`) et affichées à la place de `<tag_job>` : dans la **sidebar** d'EterTab-Paper (langue du joueur) et dans la liste Tab du réseau (canal `eter:tab` vers EterTab-Velocity, gardées jusqu'à la déconnexion) |
@@ -58,8 +58,8 @@ try {
 EterLib lib = EterLib.get();
 Database database = lib.database("eterhome_");              // tables eterhome_*
 Messages messages = lib.messages(this, "en_us", "fr_fr");  // plugins/EterHome/lang/
-RedisCache redis = lib.getRedis();                          // null si Redis est désactivé
-RedisMessenger messenger = lib.getMessenger();              // messages entre serveurs, null sans Redis
+RedisCache redis = lib.getRedis();                          // Redis, jamais null
+RedisMessenger messenger = lib.getMessenger();              // messages entre serveurs
 lib.getTeleports().teleport(player, Destination.at(server, world, x, y, z, yaw, pitch, "base"));
 lib.getPlayers().find("Steve");                            // n'importe quel joueur du réseau
 ```

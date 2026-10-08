@@ -7,8 +7,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 /**
- * Cycle de vie du cache Redis : init, getJedis, close.
- * Le cache est optionnel : ne créer helper.cache.RedisCache que si {@link #isEnabled()}.
+ * Cycle de vie de Redis : init, getJedis, close. Redis est OBLIGATOIRE sur le réseau Eter (verrous d'EterSync,
+ * présence des joueurs, messages entre serveurs) : injoignable au démarrage, EterLib refuse de démarrer.
  */
 public class Cache {
 
@@ -22,9 +22,8 @@ public class Cache {
 
     public void connect() {
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("cache");
-        if (section == null || !section.getBoolean("enabled", false)) {
-            plugin.getLogger().info("Cache : désactivé");
-            return;
+        if (section == null) {
+            throw new IllegalStateException("Section 'cache' (Redis) absente de EterLib/config.yml : Redis est obligatoire");
         }
 
         // Reconnexion gérée par le pool : chaque connexion est testée (PING) avant d'être prêtée
@@ -43,20 +42,19 @@ public class Cache {
                 section.getInt("database", 0));
         prefix = section.getString("prefix", "eter:");
 
-        // Échoue dès le démarrage si Redis est injoignable
+        // Échoue dès le démarrage si Redis est injoignable (sans le détail : il peut citer l'adresse et le mot de passe)
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.ping();
+        } catch (RuntimeException e) {
+            jedisPool.close();
+            throw new IllegalStateException("Redis injoignable (EterLib/config.yml > cache) : il est obligatoire, EterLib ne démarre pas");
         }
 
         plugin.getLogger().info("Cache : redis");
     }
 
-    public boolean isEnabled() {
-        return jedisPool != null && !jedisPool.isClosed();
-    }
-
     public Jedis getJedis() {
-        if (!isEnabled()) {
+        if (jedisPool == null || jedisPool.isClosed()) {
             throw new IllegalStateException("Le pool Redis n'est pas démarré");
         }
         return jedisPool.getResource();

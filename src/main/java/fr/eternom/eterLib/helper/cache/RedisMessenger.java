@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * Un seul fil d'écoute pour tous les plugins, qui se reconnecte tout seul si Redis tombe ; les messages publiés
  * pendant la coupure sont perdus (pas de file d'attente). Les abonnés sont appelés sur ce fil : repasser sur
  * le thread principal pour toucher au monde ou aux joueurs.
- * À créer seulement si Cache#isEnabled().
+ * Créé par EterLib une fois Redis connecté.
  */
 public class RedisMessenger {
 

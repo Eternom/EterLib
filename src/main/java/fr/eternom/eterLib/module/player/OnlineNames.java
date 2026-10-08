@@ -28,14 +28,11 @@ public class OnlineNames {
         network = directory.listOnline().stream().map(NetworkPlayer::name).toList();
     }
 
-    /**
-     * Pseudos commençant par start (sans tenir compte des majuscules).
-     * @param network false : seulement ce serveur (ex : fonctionnalité qui ne traverse pas les serveurs sans Redis)
-     */
-    public List<String> complete(String start, boolean network) {
+    /** Pseudos de tout le réseau commençant par start (sans tenir compte des majuscules). */
+    public List<String> complete(String start) {
         String prefix = start.toLowerCase(Locale.ROOT);
         Set<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), network ? this.network.stream() : Stream.empty())
+        Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), network.stream())
                 .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
                 .forEach(names::add);
         return List.copyOf(names);

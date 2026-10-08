@@ -2,9 +2,6 @@ package fr.eternom.eterLib.module.teleport;
 
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.message.Messages;
-import fr.eternom.eterLib.helper.sql.Column;
-import fr.eternom.eterLib.helper.sql.Database;
-import fr.eternom.eterLib.helper.sql.Row;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.server.ServerDirectory;
@@ -18,8 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,7 +23,7 @@ import java.util.UUID;
  * donc impossible d'enchaîner /home et /tpa pour contourner un cooldown ou fuir un combat.
  *
  * Ordre : combat, puis cooldown, puis attente (bossbar), puis départ. Destination sur un autre serveur :
- * une « téléportation en attente » est enregistrée (Redis avec TTL, sinon SQL) puis le proxy y envoie le joueur ;
+ * une « téléportation en attente » est enregistrée dans Redis (avec TTL) puis le proxy y envoie le joueur ;
  * le serveur d'arrivée la lit au spawn ({@link TeleportListener}) et le fait apparaître directement au bon endroit.
  */
 public class TeleportService {
@@ -39,13 +34,11 @@ public class TeleportService {
 
     /** Canal compris par BungeeCord et par Velocity (bungee-plugin-message-channel, activé par défaut). */
     private static final String PROXY_CHANNEL = "BungeeCord";
-    private static final String TABLE = "pending_teleports";
     /** Délai max entre le départ et l'arrivée sur l'autre serveur. */
     private static final Duration PENDING_TTL = Duration.ofSeconds(30);
 
     private final JavaPlugin plugin;
-    private final Database database;
-    private final RedisCache redis; // null si Redis est désactivé
+    private final RedisCache redis;
     private final Messages messages;
     private final String serverName;
     private final ServerDirectory servers;
@@ -53,10 +46,9 @@ public class TeleportService {
     private final TeleportCooldown cooldown;
     private final CombatTracker combat;
 
-    public TeleportService(JavaPlugin plugin, Database database, RedisCache redis, Messages messages, String serverName,
+    public TeleportService(JavaPlugin plugin, RedisCache redis, Messages messages, String serverName,
                            ServerDirectory servers, TeleportWarmup warmup, TeleportCooldown cooldown, CombatTracker combat) {
         this.plugin = plugin;
-        this.database = database;
         this.redis = redis;
         this.messages = messages;
         this.serverName = serverName;
@@ -66,20 +58,6 @@ public class TeleportService {
         this.combat = combat;
 
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, PROXY_CHANNEL);
-        // player = qui voyage ; target = joueur à rejoindre (tpa), sinon la position world/x/y/z
-        database.createTable(TABLE,
-                Column.of("player", Column.Type.UUID).primaryKey(),
-                Column.of("world", Column.Type.STRING).length(64),
-                Column.of("x", Column.Type.DOUBLE),
-                Column.of("y", Column.Type.DOUBLE),
-                Column.of("z", Column.Type.DOUBLE),
-                Column.of("yaw", Column.Type.FLOAT),
-                Column.of("pitch", Column.Type.FLOAT),
-                Column.of("target", Column.Type.UUID),
-                Column.of("created_at", Column.Type.LONG).notNull());
-        // Téléportations jamais arrivées (joueur déconnecté, serveur planté) : retirées à chaque démarrage
-        database.execute("DELETE FROM " + database.table(TABLE) + " WHERE created_at < ?",
-                System.currentTimeMillis() - PENDING_TTL.toMillis());
     }
 
     /** Point d'entrée des plugins : vérifie les règles puis téléporte. Thread principal. */
@@ -188,46 +166,16 @@ public class TeleportService {
     }
 
     private void savePending(UUID traveller, Destination destination) {
-        if (redis != null) {
-            redis.set(pendingKey(traveller), serialize(destination), PENDING_TTL);
-            return;
-        }
-        Map<String, Object> values = new HashMap<>(); // HashMap : world et target peuvent être null
-        values.put("player", traveller);
-        values.put("world", destination.world());
-        values.put("x", destination.x());
-        values.put("y", destination.y());
-        values.put("z", destination.z());
-        values.put("yaw", destination.yaw());
-        values.put("pitch", destination.pitch());
-        values.put("target", destination.targetPlayer());
-        values.put("created_at", System.currentTimeMillis());
-        database.set(TABLE, values, "player");
+        redis.set(pendingKey(traveller), serialize(destination), PENDING_TTL);
     }
 
     private Optional<Destination> takePending(UUID traveller) {
-        if (redis != null) {
-            Optional<String> value = redis.get(pendingKey(traveller));
-            value.ifPresent(found -> redis.delete(pendingKey(traveller)));
-            return value.map(this::deserialize);
-        }
-
-        Optional<Row> row = database.getFirst(TABLE, Map.of("player", traveller));
-        if (row.isEmpty()) {
-            return Optional.empty();
-        }
-        database.delete(TABLE, Map.of("player", traveller));
-        // Sans Redis pas de TTL : une téléportation trop vieille (proxy injoignable, déconnexion...) est ignorée
-        Row found = row.get();
-        if (System.currentTimeMillis() - found.getLong("created_at") > PENDING_TTL.toMillis()) {
-            return Optional.empty();
-        }
-        // Lue sur le serveur d'arrivée : c'est forcément lui la destination
-        return Optional.of(new Destination(serverName, found.getString("world"), found.getDouble("x"), found.getDouble("y"),
-                found.getDouble("z"), found.getFloat("yaw"), found.getFloat("pitch"), found.getUUID("target"), ""));
+        Optional<String> value = redis.get(pendingKey(traveller));
+        value.ifPresent(found -> redis.delete(pendingKey(traveller)));
+        return value.map(this::deserialize);
     }
 
-    /** Format Redis : target;x;y;z;yaw;pitch;world (monde en dernier, il peut contenir un ';'). */
+    /** Format : target;x;y;z;yaw;pitch;world (monde en dernier, il peut contenir un ';'). */
     private String serialize(Destination destination) {
         return (destination.targetPlayer() == null ? "" : destination.targetPlayer()) + ";" + destination.x() + ";"
                 + destination.y() + ";" + destination.z() + ";" + destination.yaw() + ";" + destination.pitch() + ";"

@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * Cache Redis, partagé entre tous les serveurs connectés au même Redis.
  * Toutes les clés sont préfixées (cache.prefix) pour ne pas entrer en conflit avec d'autres plugins.
- * À créer seulement si Cache#isEnabled().
+ * Créé par EterLib une fois Redis connecté.
  */
 public class RedisCache {
 
