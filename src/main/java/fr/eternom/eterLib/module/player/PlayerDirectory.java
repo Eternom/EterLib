@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Tous les joueurs passés sur le réseau (table eter_players, base commune à tous les plugins et au futur site),
@@ -37,11 +39,14 @@ public class PlayerDirectory {
     private final Database database;
     private final RedisCache redis;
     private final String serverName;
+    /** Joueurs invisibles (Vanish) : absents des listes et des compteurs du réseau. */
+    private final Predicate<UUID> hidden;
 
-    public PlayerDirectory(Database database, RedisCache redis, String serverName) {
+    public PlayerDirectory(Database database, RedisCache redis, String serverName, Predicate<UUID> hidden) {
         this.database = database;
         this.redis = redis;
         this.serverName = serverName;
+        this.hidden = hidden;
         database.createTable(TABLE,
                 Column.of("uuid", Column.Type.UUID).primaryKey(),
                 Column.of("name", Column.Type.STRING).length(16).notNull(),
@@ -92,29 +97,21 @@ public class PlayerDirectory {
         return redis.get(presenceKey(uuid));
     }
 
-    /** Nombre de joueurs connectés sur tout le réseau (présence rafraîchie depuis moins de ONLINE_TIMEOUT). */
+    /** Nombre de joueurs connectés sur tout le réseau (présence rafraîchie depuis moins de ONLINE_TIMEOUT), sans les invisibles. */
     public int countOnline() {
-        long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
-        return database.query("SELECT COUNT(*) AS online FROM " + database.table(TABLE)
-                        + " WHERE server IS NOT NULL AND last_seen > ?", since)
-                .stream().findFirst().map(row -> row.getInt("online")).orElse(0);
+        return listOnline().size();
     }
 
-    /** Joueurs connectés par serveur (sélecteur de serveurs d'un lobby). Bloquant (base). */
+    /** Joueurs connectés par serveur (sélecteur de serveurs d'un lobby), sans les invisibles. Bloquant (base). */
     public Map<String, Integer> countByServer() {
-        long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
-        Map<String, Integer> counts = new HashMap<>();
-        database.query("SELECT server, COUNT(*) AS online FROM " + database.table(TABLE)
-                        + " WHERE server IS NOT NULL AND last_seen > ? GROUP BY server", since)
-                .forEach(row -> counts.put(row.getString("server"), row.getInt("online")));
-        return counts;
+        return listOnline().stream().collect(Collectors.groupingBy(NetworkPlayer::server, HashMap::new, Collectors.summingInt(player -> 1)));
     }
 
-    /** Joueurs connectés sur tout le réseau (ex : compléter un pseudo avec Tab). */
+    /** Joueurs connectés sur tout le réseau (ex : compléter un pseudo avec Tab), sans les invisibles. */
     public List<NetworkPlayer> listOnline() {
         long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
         return database.query("SELECT * FROM " + database.table(TABLE) + " WHERE server IS NOT NULL AND last_seen > ?", since)
-                .stream().map(this::toPlayer).toList();
+                .stream().map(this::toPlayer).filter(player -> player.isOnline() && !hidden.test(player.uuid())).toList();
     }
 
     public Optional<NetworkPlayer> get(UUID uuid) {

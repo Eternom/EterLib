@@ -20,6 +20,7 @@ import fr.eternom.eterLib.module.tag.PlayerTags;
 import fr.eternom.eterLib.module.teleport.TeleportCooldown;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
+import fr.eternom.eterLib.module.vanish.Vanish;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -75,6 +76,7 @@ public final class EterLib extends JavaPlugin {
     private TeleportService teleports;
     private final SidebarOverrides sidebars = new SidebarOverrides();
     private PlayerTags playerTags;
+    private Vanish vanish;
 
     public static EterLib get() {
         if (instance == null) {
@@ -145,7 +147,9 @@ public final class EterLib extends JavaPlugin {
         // Tables des replis sans Redis (avant 1.8.0, Redis obligatoire depuis) : pas de table morte dans la base
         database.execute("DROP TABLE IF EXISTS " + database.table("pending_teleports") + ", " + database.table("teleport_cooldowns"));
         ConfigurationSection teleport = getConfig().getConfigurationSection("teleport");
-        players = new PlayerDirectory(database, redis, serverName);
+        playerTags = new PlayerTags(this);
+        vanish = new Vanish(this, redis, messenger, playerTags);
+        players = new PlayerDirectory(database, redis, serverName, vanish::isVanished);
         players.clearServer();
         servers = new ServerDirectory(database, serverName);
         servers.register(serverDisplayName);
@@ -154,14 +158,13 @@ public final class EterLib extends JavaPlugin {
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         TeleportCooldown cooldown = new TeleportCooldown(redis, seconds(teleport, "cooldown", 30));
         teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat);
-        playerTags = new PlayerTags(this);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
         // Signe de vie de ce serveur, et état des autres (en ligne, nom affiché), toutes les 20 s
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, servers::heartbeat, SERVER_HEARTBEAT_TICKS, SERVER_HEARTBEAT_TICKS);
-        onlineNames = new OnlineNames(players);
+        onlineNames = new OnlineNames(players, vanish::isVanished);
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, onlineNames::refresh, 20, NAMES_REFRESH_TICKS);
 
         instance = this;
@@ -270,6 +273,11 @@ public final class EterLib extends JavaPlugin {
     /** Étiquettes d'un joueur (<tag_nom>) pour la sidebar d'EterTab et la liste Tab du réseau, ex : son métier. */
     public PlayerTags getPlayerTags() {
         return playerTags;
+    }
+
+    /** Joueurs invisibles du réseau (staff) : canSee avant de montrer un joueur à un autre. */
+    public Vanish getVanish() {
+        return vanish;
     }
 
     /** Serveurs du réseau : nom affiché, en ligne ou non (relu toutes les 20 s). */

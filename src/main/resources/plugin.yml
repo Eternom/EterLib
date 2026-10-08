@@ -28,3 +28,6 @@ permissions:
       eter.bypass.warmup: true
       eter.bypass.cooldown: true
       eter.bypass.combat: true
+  eter.vanish.see:
+    description: 'Voir les joueurs invisibles (staff en vanish) : en jeu, dans les listes, dans le Tab.'
+    default: op

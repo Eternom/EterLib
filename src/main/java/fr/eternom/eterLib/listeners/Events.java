@@ -17,6 +17,7 @@ public class Events {
         register(lib, new MenuListener(lib));
         register(lib, new ServerNameListener(lib, lib.getServerName(), lib.getServerDisplayName()));
         register(lib, lib.getPlayerTags());
+        register(lib, lib.getVanish());
     }
 
     private void register(EterLib lib, Listener listener) {

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -17,10 +19,13 @@ import java.util.stream.Stream;
 public class OnlineNames {
 
     private final PlayerDirectory directory;
+    private final Predicate<UUID> hidden;
     private volatile List<String> network = List.of();
 
-    public OnlineNames(PlayerDirectory directory) {
+    /** hidden : les invisibles (Vanish), jamais proposés. */
+    public OnlineNames(PlayerDirectory directory, Predicate<UUID> hidden) {
         this.directory = directory;
+        this.hidden = hidden;
     }
 
     /** Bloquant (base). */
@@ -32,7 +37,7 @@ public class OnlineNames {
     public List<String> complete(String start) {
         String prefix = start.toLowerCase(Locale.ROOT);
         Set<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), network.stream())
+        Stream.concat(Bukkit.getOnlinePlayers().stream().filter(player -> !hidden.test(player.getUniqueId())).map(Player::getName), network.stream())
                 .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
                 .forEach(names::add);
         return List.copyOf(names);
