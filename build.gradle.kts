@@ -8,7 +8,15 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     mavenCentral()
     // VaultAPI
-    maven("https://jitpack.io")
+    // Plugins Eter (EterLib, API des autres plugins) : le jar de leur release GitHub (publiée par la CI à chaque tag)
+    ivy {
+        url = uri("https://github.com/Eternom/")
+        patternLayout { artifact("[module]/releases/download/[revision]/[module]-[revision].[ext]") }
+        metadataSources { artifact() }
+        content { includeGroup("com.github.Eternom") }
+    }
+    // Autres dépendances publiées sur JitPack (VaultAPI...)
+    maven("https://jitpack.io") { content { excludeGroup("com.github.Eternom") } }
 }
 
 dependencies {
