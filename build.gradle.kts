@@ -18,6 +18,8 @@ dependencies {
     // Téléchargées au démarrage par Paper via la section `libraries` du plugin.yml
     compileOnly("com.zaxxer:HikariCP:7.0.2")
     compileOnly("redis.clients:jedis:6.2.0")
+    // Grades (préfixe, suffixe, poids) pour tous les plugins : fourni par le plugin LuckPerms s'il est installé
+    compileOnly("net.luckperms:api:5.5")
     // Pilote JDBC : compatible MySQL et MariaDB
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.6")
     // Montants (Money) : Vault, fourni par EterEconomy sur le serveur

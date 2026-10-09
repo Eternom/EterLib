@@ -1,5 +1,6 @@
 package fr.eternom.eterLib.module.teleport;
 
+import fr.eternom.eterLib.helper.cache.Cooldowns;
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.task.Tasks;
@@ -43,11 +44,11 @@ public class TeleportService {
     private final String serverName;
     private final ServerDirectory servers;
     private final TeleportWarmup warmup;
-    private final TeleportCooldown cooldown;
+    private final Cooldowns cooldown;
     private final CombatTracker combat;
 
     public TeleportService(JavaPlugin plugin, RedisCache redis, Messages messages, String serverName,
-                           ServerDirectory servers, TeleportWarmup warmup, TeleportCooldown cooldown, CombatTracker combat) {
+                           ServerDirectory servers, TeleportWarmup warmup, Cooldowns cooldown, CombatTracker combat) {
         this.plugin = plugin;
         this.redis = redis;
         this.messages = messages;

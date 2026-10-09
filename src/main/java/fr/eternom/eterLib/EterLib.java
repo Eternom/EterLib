@@ -15,9 +15,10 @@ import fr.eternom.eterLib.listeners.Events;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
+import fr.eternom.eterLib.module.rank.Ranks;
 import fr.eternom.eterLib.module.server.ServerDirectory;
 import fr.eternom.eterLib.module.tag.PlayerTags;
-import fr.eternom.eterLib.module.teleport.TeleportCooldown;
+import fr.eternom.eterLib.helper.cache.Cooldowns;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
 import fr.eternom.eterLib.module.vanish.Vanish;
@@ -77,6 +78,7 @@ public final class EterLib extends JavaPlugin {
     private final SidebarOverrides sidebars = new SidebarOverrides();
     private PlayerTags playerTags;
     private Vanish vanish;
+    private Ranks ranks;
 
     public static EterLib get() {
         if (instance == null) {
@@ -144,19 +146,18 @@ public final class EterLib extends JavaPlugin {
         messages = messages(this, "en_us", "fr_fr");
 
         Database database = database(TABLE_PREFIX);
-        // Tables des replis sans Redis (avant 1.8.0, Redis obligatoire depuis) : pas de table morte dans la base
-        database.execute("DROP TABLE IF EXISTS " + database.table("pending_teleports") + ", " + database.table("teleport_cooldowns"));
         ConfigurationSection teleport = getConfig().getConfigurationSection("teleport");
         playerTags = new PlayerTags(this);
+        ranks = new Ranks(playerTags, messages);
         vanish = new Vanish(this, redis, messenger, playerTags);
-        players = new PlayerDirectory(database, redis, serverName, vanish::isVanished);
+        players = new PlayerDirectory(database, redis, serverName, vanish);
         players.clearServer();
         servers = new ServerDirectory(database, serverName);
         servers.register(serverDisplayName);
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
-        TeleportCooldown cooldown = new TeleportCooldown(redis, seconds(teleport, "cooldown", 30));
+        Cooldowns cooldown = new Cooldowns(redis, "cooldown", seconds(teleport, "cooldown", 30));
         teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat);
 
         new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
@@ -273,6 +274,11 @@ public final class EterLib extends JavaPlugin {
     /** Étiquettes d'un joueur (<tag_nom>) pour la sidebar d'EterTab et la liste Tab du réseau, ex : son métier. */
     public PlayerTags getPlayerTags() {
         return playerTags;
+    }
+
+    /** Grade affiché d'un joueur (LuckPerms + badge de clan) : le même dans le chat, le Tab, la sidebar... */
+    public Ranks getRanks() {
+        return ranks;
     }
 
     /** Joueurs invisibles du réseau (staff) : canSee avant de montrer un joueur à un autre. */

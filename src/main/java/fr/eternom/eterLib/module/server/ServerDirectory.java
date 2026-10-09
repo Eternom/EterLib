@@ -5,7 +5,9 @@ import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.helper.sql.Row;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,6 +20,8 @@ public class ServerDirectory {
 
     /** Sans signe de vie depuis plus longtemps, un serveur est considéré hors ligne (3 battements manqués). */
     public static final Duration ONLINE_TIMEOUT = Duration.ofSeconds(60);
+    /** Un serveur sans signe de vie depuis plus longtemps a disparu (serveur jetable supprimé) : sa ligne est effacée. */
+    private static final Duration FORGOTTEN = Duration.ofDays(1);
 
     private static final String TABLE = "servers";
 
@@ -43,12 +47,20 @@ public class ServerDirectory {
         heartbeat();
     }
 
-    /** Bloquant (base) : ce serveur tourne toujours, puis relit tous les serveurs. */
+    /**
+     * Bloquant (base) : ce serveur tourne toujours, les serveurs disparus depuis un jour sont oubliés (EterLib est seul
+     * maître de cette table : l'orchestrateur n'y efface plus rien), puis relit tous les serveurs.
+     */
     public void heartbeat() {
-        database.update(TABLE, Map.of("last_seen", System.currentTimeMillis()), Map.of("name", serverName));
+        long now = System.currentTimeMillis();
+        database.update(TABLE, Map.of("last_seen", now), Map.of("name", serverName));
+        database.execute("DELETE FROM " + database.table(TABLE) + " WHERE last_seen < ?", now - FORGOTTEN.toMillis());
+        Set<String> seen = new HashSet<>();
         for (Row row : database.get(TABLE, Map.of())) {
+            seen.add(row.getString("name"));
             servers.put(row.getString("name"), new Server(row.getString("display_name"), row.getLong("last_seen")));
         }
+        servers.keySet().retainAll(seen);
     }
 
     /** Nom affiché d'un serveur (son nom dans le proxy s'il n'est pas connu). Ne touche pas à la base. */

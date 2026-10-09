@@ -12,20 +12,37 @@ connexions une seule fois et fournit les outils partagés. Document développeur
 | `helper/cache/RedisCache` | Clés Redis préfixées (`cache.prefix`), verrous (`setIfAbsent`, `deleteIfValue`) |
 | `helper/cache/RedisMessenger` | Messages entre serveurs (pub/sub) : `publish`, `subscribe` ; un seul fil d'écoute, reconnexion automatique, messages perdus pendant une coupure |
 | `helper/cache/NetworkBus` | Messages **d'un plugin** entre serveurs, sur la base de RedisMessenger : `lib.network(this, "canal", messages)`, `on(type, données -> …)` (thread principal, le serveur d'origine ignore le sien), `publish(type, json[, siÉchec])`, `notify(joueur, clé, son, variables…)` pour prévenir un joueur où qu'il soit |
+| `helper/cache/Cooldowns` | Un délai par joueur sur tout le réseau (clé Redis qui expire) : `new Cooldowns(redis, "rtp:cooldown", durée)`, `remainingSeconds`, `start`, `tryStart` (un seul gagnant), `clear`. Le seul outil de délai (téléportation, /rtp, /report...) |
 | `helper/economy/Money` | Économie Vault (fournie par EterEconomy) : `Money.economy()` (null sans économie), `Money.format(montant)` |
 | `core/Lang` + `helper/message/Messages` | MiniMessage, dossier `lang/` de chaque plugin, langue du client, palette commune ; **textes communs** (`command.players-only`, `error.generic`, `economy.unavailable`, `dialog.cancel`, `player.unknown`) dans les langues d'EterLib, repris par un plugin qui ne les a pas ; **préfixe commun à tous les plugins** (`language.prefix`, « Core » par défaut, `messages.prefix()`) ; `raw` + `render` pour retravailler un texte (PlaceholderAPI, lignes) ; `get(joueur, clé, balises, variables…)` pour insérer un texte déjà mis en forme (nom d'objet traduit par le client…) |
 | `helper/gui` | Menus d'inventaire (`Menu`, écouteur commun, `Items`, `Sounds`) ; `Frame.draw(inventaire, couleur)` / `Frame.fill(…, cases du contenu)` : cadre commun (vitres grises, équerres de couleur aux coins : orange joueur, rouge admin) ; `Dialogs.show` : fenêtre native à deux boutons (saisie, confirmation), réponse sur le thread principal : clics annulés, double-clic protégé ; `BackButton` (`lib.backButton(commande)`) : bouton « Retour » qui lance une commande pour relier les menus (réglée dans la config de chaque plugin, `menus.<menu>.back-command`), ou « Fermer » si elle est vide |
 | `helper/sidebar/SidebarOverrides` | Sidebar temporaire d'un joueur à la place de la sienne (ex : la quête suivie) : `lib.getSidebars().show(joueur, "MonPlugin", j -> contenu)`, `clear(uuid, "MonPlugin")` ; dessinée par EterTab, seul plugin qui touche au tableau de scores, contenu recalculé à chaque rafraîchissement |
 | `helper/message/Durations` | Durée lisible dans la langue du joueur (« 2 j 3 h », « 30 min 5 s ») : `lib.formatDuration(joueur, secondes)` |
 | `helper/task/Tasks` | Aller-retour thread principal / tâche de fond, erreurs toujours écrites dans la console |
-| `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `countByServer()`, `listOnline()` ; messages d'arrivée et de départ de Minecraft coupés (`vanilla-join-quit-messages: false`) : le proxy annonce l'arrivée sur le réseau |
+| `module/player/PlayerDirectory` | Table `eter_players` (uuid, nom, langue, serveur actuel, première/dernière connexion) et présence réseau, `countOnline()`, `countByServer()`, `listOnline()` ; messages d'arrivée et de départ de Minecraft coupés (`vanilla-join-quit-messages: false`) : le proxy annonce l'arrivée sur le réseau ; `findFor(lecteur, nom)` / `findOnlineFor` : le joueur tel que le lecteur peut le voir (un invisible y est hors ligne), à utiliser avant de montrer un joueur à un autre |
 | `module/player/OnlineNames` | Pseudos connectés (ce serveur + réseau, relus toutes les 10 s) pour la complétion avec Tab : `lib.getOnlineNames().complete(début)` |
 | `module/server/ServerDirectory` | Table `eter_servers` : nom affiché de chaque serveur (`server-display-name`) et signe de vie toutes les 20 s : `lib.getServerDisplayName("survival")` → « Survie », `lib.getServers().isOnline("survival")` (hors ligne après 60 s sans nouvelles) |
 | `module/server/ServerNameListener` | Canal `eter:server` avec EterTab-Velocity, à chaque arrivée de joueur : envoie `server-display-name` au proxy (pas de liste de noms à tenir sur Velocity) et reçoit le nom du serveur dans `velocity.toml` ; s'il diffère de `server-name`, **erreur claire dans la console** (sinon /home et les téléportations se trompent sans rien dire) |
 | `module/tag/PlayerTags` | Étiquettes d'un joueur posées par les plugins (`lib.getPlayerTags().set(joueur, "job", texte)`) et affichées à la place de `<tag_job>` : dans la **sidebar** d'EterTab-Paper (langue du joueur) et dans la liste Tab du réseau (canal `eter:tab` vers EterTab-Velocity, gardées jusqu'à la déconnexion) |
+| `module/rank/Ranks` | Grade affiché d'un joueur, le même partout : préfixe, suffixe, poids et groupe LuckPerms (`softdepend`), le **badge** (étiquette `badge`, tag de clan) remplaçant le préfixe : `lib.getRanks().of(joueur)` ; `luckPerms(joueur)` sans badge |
 | `module/vanish/Vanish` | Joueurs invisibles (staff) sur **tout le réseau** (`lib.getVanish().set(joueur, true)`), gardés dans Redis (`eter:vanished`) jusqu'à ce qu'on les retire : cachés sur chaque serveur aux joueurs sans `eter.vanish.see`, absents de `listOnline`, `countOnline`, `countByServer` et de la complétion des pseudos, et de la liste Tab (étiquette `vanished` pour EterTab-Velocity). Un plugin qui montre un joueur à un autre (message privé, `/find`) demande `canSee(lecteur, uuid)` |
 | `module/teleport/TeleportService` | Téléportation commune : combat → cooldown → attente (bossbar) → départ, y compris vers un autre serveur ; `teleport(joueur, destination, auDépart)` pour agir seulement si le joueur part vraiment ; `teleportNow` sans aucune règle (staff) ; `connect(joueur, serveur)` : simple envoi sur un serveur (sélecteur d'un lobby) |
 | `module/teleport/EterTeleportEvent` | Événement Bukkit lancé juste avant chaque départ, même vers un autre serveur (que le `PlayerTeleportEvent` de Paper ne voit pas) : position quittée et destination, ex : `/back` |
+
+## Règle des données : chaque plugin est seul maître des siennes
+
+EterLib est le socle technique (connexions, joueur, présence, étiquettes, grade affiché, vanish, menus, téléportation).
+Chaque autre plugin est **seul** à lire et écrire ses tables et ses clés Redis. Un plugin qui a besoin des données d'un
+autre **demande à son API**, jamais à la base ni à Redis : la règle reste écrite à un seul endroit.
+
+- Chaque plugin publie un paquet `fr.eternom.<plugin>.api` : une interface `XxxApi` avec `static Optional<XxxApi> get()`
+  (services de Bukkit), enregistrée dans son `onEnable`. Lectures en base ou Redis : `CompletableFuture` (jamais sur le
+  thread principal).
+- Le plugin est publié sur JitPack (`maven-publish` + `jitpack.yml`) : `compileOnly("com.github.Eternom:<Plugin>:<tag>")`
+  et `softdepend: [<Plugin>]` chez qui l'utilise. API absente (plugin non installé ici) : la fonction qui en dépend est
+  désactivée, jamais cassée.
+- Seule exception : la moitié proxy d'un plugin (ex : EterVelocityModeration) peut lire les tables de sa moitié Paper
+  (même propriétaire, et le proxy ne peut pas appeler un plugin Paper).
 
 ## Utilisation dans un plugin
 

@@ -4,6 +4,8 @@ import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.sql.Column;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.helper.sql.Row;
+import fr.eternom.eterLib.module.vanish.Vanish;
+import org.bukkit.command.CommandSender;
 
 import java.time.Duration;
 import java.util.Comparator;
@@ -12,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +40,10 @@ public class PlayerDirectory {
     private final Database database;
     private final RedisCache redis;
     private final String serverName;
-    /** Joueurs invisibles (Vanish) : absents des listes et des compteurs du réseau. */
-    private final Predicate<UUID> hidden;
+    /** Joueurs invisibles : absents des listes et des compteurs du réseau, « hors ligne » pour qui ne peut pas les voir. */
+    private final Vanish hidden;
 
-    public PlayerDirectory(Database database, RedisCache redis, String serverName, Predicate<UUID> hidden) {
+    public PlayerDirectory(Database database, RedisCache redis, String serverName, Vanish hidden) {
         this.database = database;
         this.redis = redis;
         this.serverName = serverName;
@@ -111,7 +112,7 @@ public class PlayerDirectory {
     public List<NetworkPlayer> listOnline() {
         long since = System.currentTimeMillis() - ONLINE_TIMEOUT.toMillis();
         return database.query("SELECT * FROM " + database.table(TABLE) + " WHERE server IS NOT NULL AND last_seen > ?", since)
-                .stream().map(this::toPlayer).filter(player -> player.isOnline() && !hidden.test(player.uuid())).toList();
+                .stream().map(this::toPlayer).filter(player -> player.isOnline() && !hidden.isVanished(player.uuid())).toList();
     }
 
     public Optional<NetworkPlayer> get(UUID uuid) {
@@ -123,6 +124,20 @@ public class PlayerDirectory {
         return database.get(TABLE, Map.of("name", name)).stream()
                 .max(Comparator.comparingLong(row -> row.getLong("last_seen")))
                 .map(this::toPlayer);
+    }
+
+    /**
+     * Comme find, vu par asker : un invisible qu'il ne peut pas voir est montré hors ligne (serveur vide). C'est ce
+     * qu'un plugin doit utiliser avant de montrer un joueur à un autre (/find, message privé, tpa...).
+     */
+    public Optional<NetworkPlayer> findFor(CommandSender asker, String name) {
+        return find(name).map(player -> player.isOnline() && !hidden.canSee(asker, player.uuid())
+                ? new NetworkPlayer(player.uuid(), player.name(), player.locale(), null, player.firstSeen(), player.lastSeen()) : player);
+    }
+
+    /** Le joueur connecté sous ce nom, s'il l'est et que asker peut le voir. */
+    public Optional<NetworkPlayer> findOnlineFor(CommandSender asker, String name) {
+        return findFor(asker, name).filter(NetworkPlayer::isOnline);
     }
 
     private NetworkPlayer toPlayer(Row row) {
