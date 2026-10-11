@@ -42,6 +42,11 @@ public class Sql {
         config.setUsername(section.getString("username"));
         config.setPassword(section.getString("password"));
         config.setMaximumPoolSize(section.getInt("pool-size", 10));
+        // Au repos, 2 connexions seulement (sans ça, Hikari garde pool-size connexions ouvertes en permanence sur chaque
+        // serveur : avec beaucoup de serveurs, la base atteint sa limite, « Too many connections ») ; les connexions en
+        // plus sont rendues après 1 min sans servir.
+        config.setMinimumIdle(Math.min(2, section.getInt("pool-size", 10)));
+        config.setIdleTimeout(TimeUnit.MINUTES.toMillis(1));
 
         // Reconnexion gérée par Hikari : chaque connexion est validée avant d'être prêtée,
         // les connexions mortes sont remplacées, et elles sont renouvelées avant que la base
