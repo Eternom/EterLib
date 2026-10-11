@@ -58,9 +58,9 @@ database:
   username: root
   password: ''
 
-  # Nombre max de connexions ouvertes en même temps, partagées par tous les plugins Eter.
-  # 10 suffit largement ; à augmenter seulement si les logs signalent des attentes de
-  # connexion. Ne pas dépasser la limite de connexions autorisée par ton hébergeur.
+  # Nombre max de connexions ouvertes en même temps, partagées par tous les plugins Eter (au repos : 2).
+  # 10 suffit largement. Attention : la base a une limite pour TOUT le réseau (max_connections, 151 par
+  # défaut) : pool-size × nombre de serveurs, + LuckPerms de chaque serveur, doit rester en dessous.
   pool-size: 10
 
 # ============================================================
