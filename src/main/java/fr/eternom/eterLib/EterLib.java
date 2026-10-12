@@ -22,6 +22,7 @@ import fr.eternom.eterLib.helper.cache.Cooldowns;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
 import fr.eternom.eterLib.module.vanish.Vanish;
+import fr.eternom.eterLib.module.world.PlacedBlocks;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -73,6 +74,7 @@ public final class EterLib extends JavaPlugin {
     private ServerDirectory servers;
     private OnlineNames onlineNames;
     private CombatTracker combat;
+    private PlacedBlocks placedBlocks;
     private TeleportWarmup warmup;
     private TeleportService teleports;
     private final SidebarOverrides sidebars = new SidebarOverrides();
@@ -155,6 +157,8 @@ public final class EterLib extends JavaPlugin {
         servers = new ServerDirectory(database, serverName);
         servers.register(serverDisplayName);
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
+        placedBlocks = new PlacedBlocks(this);
+        Bukkit.getPluginManager().registerEvents(placedBlocks, this);
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         Cooldowns cooldown = new Cooldowns(redis, "cooldown", seconds(teleport, "cooldown", 30));
@@ -293,6 +297,11 @@ public final class EterLib extends JavaPlugin {
 
     public CombatTracker getCombat() {
         return combat;
+    }
+
+    /** Blocs posés par un joueur (minerais, bûches...) : à ne pas compter dans les succès, défis et bonus. */
+    public PlacedBlocks getPlacedBlocks() {
+        return placedBlocks;
     }
 
     public TeleportWarmup getWarmup() {
