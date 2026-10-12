@@ -33,6 +33,16 @@ public final class Tasks {
      * En cas d'erreur : écrite dans la console, puis onError sur le thread principal (ex : prévenir le joueur).
      */
     public static <T> void async(JavaPlugin plugin, Player player, Supplier<T> task, Consumer<T> then, Runnable onError) {
+        async(plugin, player, task, then, onError, result -> { });
+    }
+
+    /**
+     * Comme async, mais si le joueur est parti pendant la tâche, offline reçoit le résultat (thread principal) au lieu
+     * de then. À utiliser quand la tâche a déjà changé quelque chose en base (objet acheté, annonce retirée...) : ce
+     * que then aurait donné au joueur doit être mis de côté (boîte de récupération, remboursement), pas perdu.
+     */
+    public static <T> void async(JavaPlugin plugin, Player player, Supplier<T> task, Consumer<T> then, Runnable onError,
+                                 Consumer<T> offline) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             T result;
             try {
@@ -49,6 +59,8 @@ public final class Tasks {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline()) {
                     then.accept(result);
+                } else {
+                    offline.accept(result);
                 }
             });
         });
