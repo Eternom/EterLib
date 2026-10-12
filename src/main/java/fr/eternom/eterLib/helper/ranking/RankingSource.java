@@ -30,6 +30,19 @@ public interface RankingSource {
     /** {place (1 = premier, 0 si absent), valeur} du joueur. Bloquant (base). */
     long[] of(UUID player);
 
+    /**
+     * Nom affiché d'une ligne à la place du pseudo du joueur, null pour le pseudo (par défaut). Ex : un classement de
+     * clans renvoie le nom du clan (la ligne porte le chef du clan). Bloquant (base).
+     */
+    default String label(Ranked entry) {
+        return null;
+    }
+
+    /** Icône d'une ligne à la place de la tête du joueur, null pour la tête (par défaut). */
+    default org.bukkit.Material icon(Ranked entry) {
+        return null;
+    }
+
     /** La source enregistrée sous cet identifiant, si un plugin la fournit sur ce serveur. */
     static Optional<RankingSource> find(String id) {
         return Bukkit.getServicesManager().getRegistrations(RankingSource.class).stream()
