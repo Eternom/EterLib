@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,13 +89,29 @@ public class Database {
     }
 
     public void insert(String table, Map<String, ?> values) {
-        List<String> columns = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
-        values.forEach((column, value) -> {
-            columns.add(id(column));
-            params.add(value);
-        });
-        execute(insertSql(table, columns), params.toArray());
+        Insert insert = insertStatement(table, values);
+        execute(insert.sql(), insert.params());
+    }
+
+    /**
+     * Insère la ligne et renvoie l'identifiant que la base lui a donné (colonne autoIncrement). À préférer à une
+     * relecture du plus grand id : deux serveurs qui insèrent en même temps recevraient le même.
+     */
+    public long insertReturningId(String table, Map<String, ?> values) {
+        Insert insert = insertStatement(table, values);
+        String sql = insert.sql();
+        try (Connection connection = this.sql.getConnection();
+             PreparedStatement statement = bind(connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS), insert.params())) {
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    throw new IllegalStateException("Aucun identifiant renvoyé : " + sql);
+                }
+                return keys.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Erreur SQL : " + sql, e);
+        }
     }
 
     /** Insère la ligne, ou la met à jour si une ligne avec les mêmes keys existe déjà. */
@@ -238,8 +255,26 @@ public class Database {
         return joiner.toString();
     }
 
+    /** Une insertion prête : la requête et ses paramètres, dans l'ordre des colonnes. */
+    private record Insert(String sql, Object[] params) {
+    }
+
+    private Insert insertStatement(String table, Map<String, ?> values) {
+        List<String> columns = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        values.forEach((column, value) -> {
+            columns.add(id(column));
+            params.add(value);
+        });
+        return new Insert(insertSql(table, columns), params.toArray());
+    }
+
     private PreparedStatement prepare(Connection connection, String sql, Object... params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(sql);
+        return bind(connection.prepareStatement(sql), params);
+    }
+
+    /** Remplit les paramètres (UUID et enum en texte) ; ferme la requête en cas d'erreur. */
+    private static PreparedStatement bind(PreparedStatement statement, Object... params) throws SQLException {
         try {
             for (int i = 0; i < params.length; i++) {
                 Object value = switch (params[i]) {

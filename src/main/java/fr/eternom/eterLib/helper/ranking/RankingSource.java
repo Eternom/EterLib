@@ -1,6 +1,7 @@
 package fr.eternom.eterLib.helper.ranking;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public interface RankingSource {
     }
 
     /** Icône d'une ligne à la place de la tête du joueur, null pour la tête (par défaut). */
-    default org.bukkit.Material icon(Ranked entry) {
+    default Material icon(Ranked entry) {
         return null;
     }
 
