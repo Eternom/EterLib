@@ -2,13 +2,13 @@ package fr.eternom.eterLib.module.teleport;
 
 import fr.eternom.eterLib.helper.cache.Cooldowns;
 import fr.eternom.eterLib.helper.cache.RedisCache;
+import fr.eternom.eterLib.helper.gui.Sounds;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.task.Tasks;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.server.ServerDirectory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -163,7 +163,7 @@ public class TeleportService {
 
     private void error(Player player, String key, String... placeholders) {
         messages.send(player, key, placeholders);
-        player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
+        Sounds.refuse(player);
     }
 
     private void savePending(UUID traveller, Destination destination) {

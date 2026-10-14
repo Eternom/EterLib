@@ -16,4 +16,9 @@ public final class Sounds {
     public static void page(Player player) {
         player.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 0.8f, 1f);
     }
+
+    /** Refus (action impossible, élément verrouillé, erreur) : le même son dans tous les plugins. */
+    public static void refuse(Player player) {
+        player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1f);
+    }
 }
