@@ -15,6 +15,7 @@ public class Events {
         register(lib, new CombatListener(lib.getCombat()));
         register(lib, new TeleportListener(lib, lib.getTeleports(), lib.getWarmup(), cancelWarmupOnDamage));
         register(lib, new MenuListener(lib));
+        register(lib, lib.getMenuHistory());
         register(lib, new ServerNameListener(lib, lib.getServerName(), lib.getServerDisplayName()));
         register(lib, lib.getPlayerTags());
         register(lib, lib.getVanish());

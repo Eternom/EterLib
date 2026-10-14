@@ -36,6 +36,7 @@ teleport:
 menu:
   back: "<accent>« Back"
   back-lore: "<dark_gray>▸ <info><command>"
+  back-previous: "<dark_gray>▸ <info>Back to the previous menu"
   close: "<error>Close"
 
 time:

@@ -7,6 +7,7 @@ import fr.eternom.eterLib.helper.cache.NetworkBus;
 import fr.eternom.eterLib.helper.cache.RedisCache;
 import fr.eternom.eterLib.helper.cache.RedisMessenger;
 import fr.eternom.eterLib.helper.gui.BackButton;
+import fr.eternom.eterLib.helper.gui.MenuHistory;
 import fr.eternom.eterLib.helper.message.Durations;
 import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sidebar.SidebarOverrides;
@@ -24,6 +25,7 @@ import fr.eternom.eterLib.module.teleport.TeleportWarmup;
 import fr.eternom.eterLib.module.vanish.Vanish;
 import fr.eternom.eterLib.module.world.PlacedBlocks;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -80,6 +82,7 @@ public final class EterLib extends JavaPlugin {
     private final SidebarOverrides sidebars = new SidebarOverrides();
     private PlayerTags playerTags;
     private Vanish vanish;
+    private MenuHistory menuHistory;
     private Ranks ranks;
 
     public static EterLib get() {
@@ -158,6 +161,7 @@ public final class EterLib extends JavaPlugin {
         servers.register(serverDisplayName);
         combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
         placedBlocks = new PlacedBlocks(this);
+        menuHistory = new MenuHistory(new NamespacedKey(this, "back"), messages);
         Bukkit.getPluginManager().registerEvents(placedBlocks, this);
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
@@ -212,7 +216,7 @@ public final class EterLib extends JavaPlugin {
      * joueur (ex : "profile"), pour relier les menus. À lire dans la config du plugin (menus.<menu>.back-command).
      */
     public BackButton backButton(String command) {
-        return new BackButton(command, messages);
+        return new BackButton(command, messages, menuHistory);
     }
 
     /**
@@ -286,6 +290,11 @@ public final class EterLib extends JavaPlugin {
     }
 
     /** Joueurs invisibles du réseau (staff) : canSee avant de montrer un joueur à un autre. */
+    /** Le chemin des joueurs dans les menus (bouton Retour). */
+    public MenuHistory getMenuHistory() {
+        return menuHistory;
+    }
+
     public Vanish getVanish() {
         return vanish;
     }
