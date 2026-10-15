@@ -87,6 +87,12 @@ cache:
   # utilisant le même Redis. Identique sur tous les serveurs du réseau.
   prefix: 'eter:'
 
+  # Secret des messages entre serveurs (chat, votes, sanctions, annonces...) : chacun est signé avec lui, et un message
+  # non signé, mal signé ou vieux de plus de 2 minutes est ignoré. LE MÊME sur tous les serveurs du réseau (et dans le
+  # modèle de config des lobbys de l'orchestrateur). Une longue chaîne au hasard, ex : openssl rand -hex 32.
+  # Vide : messages non signés (ancien fonctionnement).
+  secret: ''
+
   # Nombre max de connexions ouvertes en même temps vers Redis. 8 suffit largement.
   pool-size: 8
 

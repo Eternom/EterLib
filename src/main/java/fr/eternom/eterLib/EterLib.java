@@ -147,7 +147,7 @@ public final class EterLib extends JavaPlugin {
         cache = new Cache(this);
         cache.connect();
         redis = new RedisCache(cache);
-        messenger = new RedisMessenger(cache, getLogger());
+        messenger = new RedisMessenger(cache, getLogger(), getConfig().getString("cache.secret", ""));
         messages = messages(this, "en_us", "fr_fr");
 
         Database database = database(TABLE_PREFIX);
