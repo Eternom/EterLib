@@ -13,6 +13,7 @@ import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sidebar.SidebarOverrides;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
+import fr.eternom.eterLib.module.activity.Activity;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
@@ -77,6 +78,7 @@ public final class EterLib extends JavaPlugin {
     private OnlineNames onlineNames;
     private CombatTracker combat;
     private PlacedBlocks placedBlocks;
+    private Activity activity;
     private TeleportWarmup warmup;
     private TeleportService teleports;
     private final SidebarOverrides sidebars = new SidebarOverrides();
@@ -163,6 +165,8 @@ public final class EterLib extends JavaPlugin {
         placedBlocks = new PlacedBlocks(this);
         menuHistory = new MenuHistory(new NamespacedKey(this, "back"), messages);
         Bukkit.getPluginManager().registerEvents(placedBlocks, this);
+        activity = new Activity(Duration.ofMinutes(Math.max(1, getConfig().getInt("activity.afk-minutes", 5))));
+        Bukkit.getPluginManager().registerEvents(activity, this);
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         Cooldowns cooldown = new Cooldowns(redis, "cooldown", seconds(teleport, "cooldown", 30));
@@ -311,6 +315,11 @@ public final class EterLib extends JavaPlugin {
     /** Blocs posés par un joueur (minerais, bûches...) : à ne pas compter dans les succès, défis et bonus. */
     public PlacedBlocks getPlacedBlocks() {
         return placedBlocks;
+    }
+
+    /** Activité des joueurs de ce serveur : actif, regard, AFK (temps de jeu, pass, sommeil...). */
+    public Activity getActivity() {
+        return activity;
     }
 
     public TeleportWarmup getWarmup() {
