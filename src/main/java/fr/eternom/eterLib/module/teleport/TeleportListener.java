@@ -55,7 +55,7 @@ public class TeleportListener implements Listener {
             // Quelques ticks : laisser le client charger le monde pour qu'il voie l'effet
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (player.isOnline()) {
-                    TeleportEffects.burst(player.getLocation());
+                    TeleportEffects.burst(player, player.getLocation());
                 }
             }, 10);
         }

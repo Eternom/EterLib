@@ -131,10 +131,10 @@ public class TeleportService {
                 return false;
             }
             Bukkit.getPluginManager().callEvent(new EterTeleportEvent(player, player.getLocation(), destination));
-            TeleportEffects.burst(player.getLocation());
+            TeleportEffects.burst(player, player.getLocation());
             player.teleportAsync(location).thenAccept(success -> {
                 if (success) {
-                    TeleportEffects.burst(location);
+                    TeleportEffects.burst(player, location);
                 }
             });
             return true;
@@ -147,7 +147,7 @@ public class TeleportService {
             return destination.server();
         }, server -> {
             messages.send(player, "teleport.sending", "server", servers.displayName(server));
-            TeleportEffects.burst(player.getLocation());
+            TeleportEffects.burst(player, player.getLocation());
             connect(player, server);
         }, () -> messages.send(player, "error.generic"));
         return true;
