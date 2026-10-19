@@ -14,6 +14,7 @@ import fr.eternom.eterLib.helper.sidebar.SidebarOverrides;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
 import fr.eternom.eterLib.module.activity.Activity;
+import fr.eternom.eterLib.module.world.WorldRules;
 import fr.eternom.eterLib.module.combat.CombatTracker;
 import fr.eternom.eterLib.module.player.OnlineNames;
 import fr.eternom.eterLib.module.player.PlayerDirectory;
@@ -167,6 +168,11 @@ public final class EterLib extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(placedBlocks, this);
         activity = new Activity(Duration.ofMinutes(Math.max(1, getConfig().getInt("activity.afk-minutes", 5))));
         Bukkit.getPluginManager().registerEvents(activity, this);
+        // Règles de jeu de chaque monde (section absente : celles par défaut, dont locator_bar false)
+        WorldRules worldRules = new WorldRules(getConfig().isSet("game-rules") ? getConfig().getConfigurationSection("game-rules") : null,
+                getLogger());
+        Bukkit.getPluginManager().registerEvents(worldRules, this);
+        worldRules.applyAll();
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         Cooldowns cooldown = new Cooldowns(redis, "cooldown", seconds(teleport, "cooldown", 30));

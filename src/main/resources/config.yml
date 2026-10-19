@@ -106,6 +106,14 @@ cache:
 #  Les permissions eter.bypass.warmup / .cooldown / .combat (op par défaut)
 #  dispensent de chaque règle.
 
+# Règles de jeu appliquées à CHAQUE monde de ce serveur, au démarrage et à chaque monde chargé : les lobbys créés par
+# l'orchestrateur les ont d'office. Noms de Minecraft 26, ceux de /gamerule (ex : locator_bar, keep_inventory) ;
+# true/false ou un nombre. Section absente : locator_bar false. Ne pas y mettre players_sleeping_percentage : EterSleep la gère.
+game-rules:
+  # Barre de localisation (direction des autres joueurs) : coupée. Elle trahit les bases, et ses paquets font planter
+  # certains clients (ClientWaypointManager).
+  locator_bar: false
+
 # Activité des joueurs (temps de jeu actif, XP du pass, sommeil...) : un joueur qui n'a ni marché, ni tourné la tête,
 # ni agi, ni parlé depuis afk-minutes est AFK (EterSleep ne l'attend pas pour passer la nuit).
 activity:
