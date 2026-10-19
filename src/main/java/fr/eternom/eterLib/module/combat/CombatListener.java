@@ -30,6 +30,10 @@ public class CombatListener implements Listener {
         if (!(attacker instanceof LivingEntity) || !(event.getEntity() instanceof LivingEntity victim) || victim instanceof ArmorStand) {
             return;
         }
+        if (victim instanceof Player target && attacker instanceof Player player && target != player) {
+            combat.tagPlayers(target.getUniqueId(), target.getName(), player.getUniqueId(), player.getName());
+            return;
+        }
         if (victim instanceof Player player) {
             combat.tag(player.getUniqueId());
         }
