@@ -30,7 +30,8 @@ import java.util.Set;
  * Blocs « naturels » ou posés par un joueur. Les succès, défis et bonus qui comptent les blocs cassés ne doivent compter
  * que les naturels : sinon, poser et recasser le même minerai (ou la même bûche) ferait monter le compteur sans fin.
  *
- * Seules les matières qui comptent quelque part sont suivies (minerais, bûches, pierres, terre et sable, melons...).
+ * Seules les matières qui comptent quelque part sont suivies (minerais, bûches, feuilles, pierres, terre et sable,
+ * melons...) : succès, défis, bonus, et quêtes de métier d'EterMarket.
  * Chaque bloc posé est noté dans les données du chunk (sauvegardées avec le monde) ; la note suit les pistons et
  * disparaît quand le bloc est cassé, brûle ou explose. À lire AVANT MONITOR dans BlockBreakEvent (la note est retirée
  * à MONITOR) : {@code lib.getPlacedBlocks().isPlaced(block)}.
@@ -41,14 +42,15 @@ public class PlacedBlocks implements Listener {
 
     static {
         for (Tag<Material> tag : List.of(Tag.COAL_ORES, Tag.IRON_ORES, Tag.COPPER_ORES, Tag.GOLD_ORES, Tag.REDSTONE_ORES,
-                Tag.LAPIS_ORES, Tag.DIAMOND_ORES, Tag.EMERALD_ORES, Tag.LOGS, Tag.SAND)) {
+                Tag.LAPIS_ORES, Tag.DIAMOND_ORES, Tag.EMERALD_ORES, Tag.LOGS, Tag.SAND, Tag.LEAVES)) {
             TRACKED.addAll(tag.getValues());
         }
         TRACKED.addAll(List.of(Material.NETHER_QUARTZ_ORE, Material.NETHER_GOLD_ORE, Material.ANCIENT_DEBRIS,
                 Material.STONE, Material.DEEPSLATE, Material.ANDESITE, Material.DIORITE, Material.GRANITE, Material.TUFF,
                 Material.CALCITE, Material.NETHERRACK, Material.END_STONE, Material.BLACKSTONE, Material.BASALT,
                 Material.GRAVEL, Material.CLAY, Material.DIRT, Material.GRASS_BLOCK, Material.MELON, Material.PUMPKIN,
-                Material.SUGAR_CANE, Material.CACTUS, Material.BAMBOO, Material.AMETHYST_CLUSTER, Material.OBSIDIAN));
+                Material.SUGAR_CANE, Material.CACTUS, Material.BAMBOO, Material.AMETHYST_CLUSTER, Material.OBSIDIAN,
+                Material.MANGROVE_ROOTS));
     }
 
     private final NamespacedKey key;
