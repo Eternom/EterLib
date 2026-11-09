@@ -13,6 +13,8 @@ import fr.eternom.eterLib.helper.message.Messages;
 import fr.eternom.eterLib.helper.sidebar.SidebarOverrides;
 import fr.eternom.eterLib.helper.sql.Database;
 import fr.eternom.eterLib.listeners.Events;
+import fr.eternom.eterLib.module.action.ActionCommand;
+import fr.eternom.eterLib.module.action.Actions;
 import fr.eternom.eterLib.module.activity.Activity;
 import fr.eternom.eterLib.module.world.WorldRules;
 import fr.eternom.eterLib.module.combat.CombatTracker;
@@ -88,6 +90,7 @@ public final class EterLib extends JavaPlugin {
     private Vanish vanish;
     private MenuHistory menuHistory;
     private Ranks ranks;
+    private Actions actions;
 
     public static EterLib get() {
         if (instance == null) {
@@ -180,6 +183,13 @@ public final class EterLib extends JavaPlugin {
         teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat,
                 seconds(teleport, "arrival-protection", 3));
 
+        actions = new Actions(this, redis, messages, serverName, servers, teleports, combat, getConfig().getBoolean("actions.debug", false));
+        Bukkit.getPluginManager().registerEvents(actions, this);
+        actions.start();
+        ActionCommand actionCommand = new ActionCommand(actions, messages);
+        java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
+        java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
+
         new Events(this, TeleportListener.DamageMode.parse(teleport == null ? null : teleport.getString("cancel-on-damage", "combat")));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
@@ -194,6 +204,9 @@ public final class EterLib extends JavaPlugin {
     @Override
     public void onDisable() {
         instance = null;
+        if (actions != null) {
+            actions.stop();
+        }
         if (messenger != null) {
             messenger.close();
         }
@@ -303,6 +316,11 @@ public final class EterLib extends JavaPlugin {
 
     /** Joueurs invisibles du réseau (staff) : canSee avant de montrer un joueur à un autre. */
     /** Le chemin des joueurs dans les menus (bouton Retour). */
+    /** Les actions du réseau : à déclarer (register) et à lancer (run) par les PNJ, menus, commandes. Depuis 1.22.0. */
+    public Actions getActions() {
+        return actions;
+    }
+
     public MenuHistory getMenuHistory() {
         return menuHistory;
     }

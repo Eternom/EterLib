@@ -37,6 +37,21 @@ teleport:
   world-missing: "<error>The world of <accent><destination></accent> no longer exists."
   target-gone: "<error><accent><destination></accent> is no longer here."
 
+action:
+  unknown: "<error>Unknown action on the network: <accent><action></accent>."
+  unavailable: "<error>This action is not available on any server right now (<accent><action></accent>)."
+  invalid: "Unreadable line (<line>): <reason>"
+  is-condition: "<action> is a condition: write ?<action>"
+  not-condition: "<action> is not a condition: remove the ?"
+  missing-args: "Missing arguments: <usage>"
+  error: "<error>You can't do that right now."
+  cooldown: "<error>Wait <accent><time>s</accent>."
+  check-error: "<error><problem>"
+  usage: "<error>Usage: <accent>/eterlib actions [filter]</accent> or <accent>/eterlib action <line> [; line...]"
+  list-title: "<info>Network actions (<accent><count></accent>):"
+  list-line: "<dark_gray> ▸ <accent><usage></accent> <dark_gray>(<plugin>) <info><description>"
+  list-line-remote: "<dark_gray> ▸ <info><usage> <dark_gray>(<plugin>, other server) <info><description>"
+
 menu:
   back: "<accent>« Back"
   back-lore: "<dark_gray>▸ <info><command>"

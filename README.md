@@ -88,6 +88,29 @@ lib.getTeleports().teleport(player, Destination.at(server, world, x, y, z, yaw, 
 lib.getPlayers().find("Steve");                            // n'importe quel joueur du réseau
 ```
 
+## Actions du réseau (depuis 1.22.0)
+
+Un PNJ, un menu ou une commande lance des **actions** par une simple ligne de texte, sans connaître le plugin qui les
+fournit (`module/action`, `EterLib.get().getActions()`).
+
+- **Déclarer** (dans le `onEnable` d'un plugin) : `register(plugin, "eterjob:quests", "Quêtes du métier",
+  List.of(Argument.required("métier", tapé -> métiers)), (joueur, args) -> ...)` ; une condition :
+  `registerCondition(plugin, "eterjob:has-job", ...)`. Un plugin arrêté retire les siennes.
+- **Écrire une ligne** (`ActionLine`, testée) : `eterjob:quests mineur` · `eterlib:message "Bonjour {player} !"` ·
+  `?eterjob:has-job mineur` (condition : fausse, la suite n'est pas lancée) · `?!eterlib:permission eter.vip` (inversée) ·
+  `@survie eterjob:guild` (sur ce serveur). Remplacements : `{player}`, `{uuid}`, `{server}`, `{world}`.
+- **Lancer** une chaîne : `run(joueur, lignes)`, ou `run(joueur, lignes, clé, délai)` avec un délai par joueur.
+  **Ailleurs** : si l'action n'est pas déclarée ici (ou si un serveur est imposé), la suite de la chaîne est mise de côté
+  dans Redis (2 min), le joueur est envoyé sur un serveur qui la fournit (refusé en combat), et elle se lance à son arrivée.
+- **Annuaire** : chaque serveur annonce ses actions toutes les 20 s (Redis `actions:providers:<id>`, `actions:index`) ;
+  une action qu'aucun serveur n'a annoncée depuis une minute disparaît de l'annuaire.
+- **Vérifier et compléter** : `validate(lecteur, lignes)` (erreurs lisibles avant d'enregistrer une chaîne),
+  `complete(mots)` (identifiants, puis valeurs des arguments).
+- **Fournies par EterLib** : `eterlib:message`, `actionbar`, `title`, `command` (par le joueur), `console`, `sound`,
+  `server`, `close` ; conditions `?eterlib:permission`, `?eterlib:on-server`, `?eterlib:world`, `?eterlib:gamemode`.
+- **Staff** (`eterlib.admin`) : `/eterlib actions [filtre]` liste celles du réseau, `/eterlib action <ligne> [; ligne...]`
+  en essaie une sur soi. `actions.debug: true` (config) écrit chaque action lancée dans la console.
+
 ## Base de données commune
 
 Une seule base pour tout le réseau, pensée pour être lue par un futur site web :

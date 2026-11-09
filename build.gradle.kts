@@ -34,10 +34,19 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude(group = "org.bukkit")
     }
+
+    // Tests de la logique pure (lignes d'action)
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 // Les autres plugins compilent contre EterLib : com.github.Eternom:EterLib:<version>.

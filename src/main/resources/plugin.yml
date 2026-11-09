@@ -8,12 +8,21 @@ softdepend: [Vault, LuckPerms]
 authors: [ NadTum ]
 description: Socle commun des plugins Eter (base, Redis, langue, joueurs, téléportation).
 
+commands:
+  eterlib:
+    description: Les actions du réseau (lister, essayer).
+    usage: /eterlib <actions [filtre] | action <ligne> [; ligne...]>
+    permission: eterlib.admin
+
 libraries:
   - com.zaxxer:HikariCP:7.0.2
   - redis.clients:jedis:6.2.0
   - org.mariadb.jdbc:mariadb-java-client:3.5.6
 
 permissions:
+  eterlib.admin:
+    description: /eterlib (lister et essayer les actions du réseau).
+    default: op
   # Dispenses des règles de téléportation communes (EterLib/config.yml > teleport)
   eter.bypass.warmup:
     default: op

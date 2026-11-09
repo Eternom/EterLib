@@ -162,3 +162,9 @@ language:
     info: gray           # texte courant, qui ne doit pas ressortir (gris clair)
     error: '#FF5C5C'     # messages d'erreur
     success: '#5FD38D'   # petits repères seulement (bouton Confirmer, "(ici)")
+
+# Actions du réseau (PNJ, menus, commandes : « eterjob:quests mineur », « eterlib:message ... ») : chaque plugin déclare
+# les siennes ; /eterlib actions les liste, /eterlib action <ligne> en essaie une. debug : chaque action lancée est
+# écrite dans la console.
+actions:
+  debug: false
