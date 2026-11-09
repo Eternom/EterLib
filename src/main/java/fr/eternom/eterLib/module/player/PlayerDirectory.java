@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 public class PlayerDirectory {
 
     public static final Duration ONLINE_TIMEOUT = Duration.ofMinutes(2);
+    /** Durée de l'historique des serveurs (serveur précédent). */
+    private static final Duration HISTORY_TTL = Duration.ofDays(30);
     private static final String TABLE = "players";
 
     /** server = null si le joueur est hors ligne. */
@@ -73,6 +75,15 @@ public class PlayerDirectory {
                     "first_seen", now, "last_seen", now));
         }
         redis.set(presenceKey(uuid), serverName, ONLINE_TIMEOUT);
+        // Serveur d'avant (bouton « Reprendre » d'un lobby) : le dernier serveur rejoint devient le précédent
+        redis.get(lastKey(uuid)).filter(last -> !last.equals(serverName))
+                .ifPresent(last -> redis.set(previousKey(uuid), last, HISTORY_TTL));
+        redis.set(lastKey(uuid), serverName, HISTORY_TTL);
+    }
+
+    /** Le serveur où le joueur était avant celui-ci (vide s'il n'y en a pas, ou après 30 jours). Bloquant. Depuis 1.23.0. */
+    public Optional<String> previousServer(UUID uuid) {
+        return redis.get(previousKey(uuid));
     }
 
     /**
@@ -155,6 +166,14 @@ public class PlayerDirectory {
         values.put("server", null);
         values.put("last_seen", lastSeen);
         return values;
+    }
+
+    private static String lastKey(UUID uuid) {
+        return "server-last:" + uuid;
+    }
+
+    private static String previousKey(UUID uuid) {
+        return "server-previous:" + uuid;
     }
 
     private String presenceKey(UUID uuid) {
