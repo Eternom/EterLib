@@ -28,8 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * directement (par sa commande) a un bouton Fermer.
  *
  * Un menu ouvert depuis un autre, ou moins de 2 s après en avoir fermé un (le temps d'une lecture en base), prolonge le
- * chemin ; sinon le chemin repart de lui. Revenir sur un menu du chemin coupe ce qui le suit ; un menu de la même sorte
- * que le dernier (autre page, menu rafraîchi après une action) le remplace. Le bouton (repéré par une étiquette sur
+ * chemin ; sinon le chemin repart de lui. Revenir sur un menu du chemin, ou ouvrir un menu de la même sorte qu'un menu
+ * du chemin (autre page, menu rafraîchi, menu maître rouvert par le retour fixe d'un de ses sous-menus), coupe le chemin
+ * là : le menu reprend sa place. Seul le point d'entrée d'un menu maître suit donc le chemin (retour vers d'où l'on
+ * venait) ; ses sous-menus ont un retour fixe, et le maître ne boucle jamais sur eux. Le bouton (repéré par une étiquette sur
  * l'item) est redessiné à l'ouverture, quand le chemin est connu. Thread principal.
  */
 public final class MenuHistory implements Listener {
@@ -62,16 +64,18 @@ public final class MenuHistory implements Listener {
         if (!linked) {
             path.menus.clear();
         }
-        if (path.menus.contains(menu)) {
-            while (path.menus.peekLast() != menu) {
-                path.menus.pollLast();
+        // Revenir sur un menu déjà dans le chemin (le même, ou un autre de la même sorte : un sous-menu qui revient « en
+        // dur » à son menu maître en ouvre une nouvelle copie) : le chemin est coupé là, le menu reprend sa place. Sans
+        // ça, le chemin devenait Central → Clan → Terrain → Clan, et le Retour du Clan renvoyait au Terrain (une boucle).
+        if (path.menus.stream().anyMatch(known -> known == menu || known.getClass() == menu.getClass())) {
+            while (!path.menus.isEmpty()) {
+                Menu last = path.menus.pollLast();
+                if (last == menu || last.getClass() == menu.getClass()) {
+                    break;
+                }
             }
-        } else {
-            if (!path.menus.isEmpty() && path.menus.peekLast().getClass() == menu.getClass()) {
-                path.menus.pollLast();
-            }
-            path.menus.addLast(menu);
         }
+        path.menus.addLast(menu);
         repaint(player, event.getInventory());
     }
 
