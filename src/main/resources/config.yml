@@ -120,14 +120,20 @@ activity:
   afk-minutes: 5
 
 teleport:
-  # Attente avant de partir (bossbar + particules).
+  # Attente avant de partir (bossbar, compte à rebours, particules). Moins pour un grade : eter.teleport.warmup.<secondes>
+  # (la plus petite l'emporte). Aucune : eter.bypass.warmup.
   warmup: 3
-  # Bouger de plus d'un demi-bloc pendant l'attente l'annule.
+  # Bouger de plus d'un demi-bloc pendant l'attente l'annule. Jamais pour un départ que le joueur n'a pas lancé
+  # lui-même (tpa accepté par un autre) : il ne s'y attend pas.
   cancel-on-move: true
-  # Prendre des dégâts pendant l'attente l'annule.
-  cancel-on-damage: true
-  # Délai entre deux téléportations, partagé entre tous les serveurs.
+  # Ce qui annule l'attente : « combat » (un coup d'un joueur ou d'un monstre ; pas une chute, la faim, le feu), « all »
+  # (tout dégât) ou « false » (rien). true = combat.
+  cancel-on-damage: combat
+  # Délai entre deux téléportations, partagé entre tous les serveurs. Moins pour un grade : eter.teleport.cooldown.<secondes>.
   cooldown: 30
+  # Après une téléportation vers un joueur (ou depuis un autre serveur), ce nombre de secondes sans aucun dégât, tant que
+  # le joueur ne frappe pas (arriver au milieu d'un combat). 0 = pas de protection.
+  arrival-protection: 3
   # Après un coup donné ou reçu (joueur OU monstre), téléportation interdite pendant ce temps.
   combat-tag: 10
 

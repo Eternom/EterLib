@@ -44,6 +44,17 @@ public class Cooldowns {
         }
     }
 
+    /** Un délai d'une autre durée pour ce joueur (ex : plus court pour un grade) ; zéro ou moins = rien. */
+    public void start(UUID player, Duration custom) {
+        if (!custom.isZero() && !custom.isNegative()) {
+            redis.set(key(player), String.valueOf(System.currentTimeMillis() + custom.toMillis()), custom);
+        }
+    }
+
+    public Duration duration() {
+        return duration;
+    }
+
     /**
      * Démarre le délai seulement s'il n'est pas en cours, en une seule opération (deux serveurs en même temps : un seul
      * gagne). false si le délai courait déjà.

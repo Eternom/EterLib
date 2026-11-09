@@ -24,6 +24,7 @@ import fr.eternom.eterLib.module.tag.PlayerTags;
 import fr.eternom.eterLib.helper.cache.Cooldowns;
 import fr.eternom.eterLib.module.teleport.TeleportService;
 import fr.eternom.eterLib.module.teleport.TeleportWarmup;
+import fr.eternom.eterLib.module.teleport.TeleportListener;
 import fr.eternom.eterLib.module.vanish.Vanish;
 import fr.eternom.eterLib.module.world.PlacedBlocks;
 import org.bukkit.Bukkit;
@@ -162,7 +163,7 @@ public final class EterLib extends JavaPlugin {
         players.clearServer();
         servers = new ServerDirectory(database, serverName);
         servers.register(serverDisplayName);
-        combat = new CombatTracker(seconds(teleport, "combat-tag", 10));
+        combat = new CombatTracker(seconds(teleport, "combat-tag", 10), this, redis);
         placedBlocks = new PlacedBlocks(this);
         menuHistory = new MenuHistory(new NamespacedKey(this, "back"), messages);
         Bukkit.getPluginManager().registerEvents(placedBlocks, this);
@@ -176,9 +177,10 @@ public final class EterLib extends JavaPlugin {
         warmup = new TeleportWarmup(this, messages, seconds(teleport, "warmup", 3),
                 teleport == null || teleport.getBoolean("cancel-on-move", true));
         Cooldowns cooldown = new Cooldowns(redis, "cooldown", seconds(teleport, "cooldown", 30));
-        teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat);
+        teleports = new TeleportService(this, redis, messages, serverName, servers, warmup, cooldown, combat,
+                seconds(teleport, "arrival-protection", 3));
 
-        new Events(this, teleport == null || teleport.getBoolean("cancel-on-damage", true));
+        new Events(this, TeleportListener.DamageMode.parse(teleport == null ? null : teleport.getString("cancel-on-damage", "combat")));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
                 Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).toList()), HEARTBEAT_TICKS, HEARTBEAT_TICKS);
         // Signe de vie de ce serveur, et état des autres (en ligne, nom affiché), toutes les 20 s

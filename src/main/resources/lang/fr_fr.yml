@@ -22,7 +22,11 @@ player:
   unknown: "<error>Joueur inconnu : <accent><player></accent>."
 
 teleport:
-  warmup-start: "<info>Téléportation dans <accent><time>s</accent>, ne bouge pas !"
+  busy: "<error>Une téléportation est déjà en cours : attends qu'elle se termine."
+  countdown-title: "<accent><bold><time>"
+  countdown-still: "<info>Vers <accent><destination></accent> · ne bouge pas"
+  countdown-free: "<info>Vers <accent><destination></accent>"
+  warmup-start: "<info>Téléportation dans <accent><time>s</accent>."
   warmup-bar: "<info>Téléportation vers <accent><destination></accent> <dark_gray>· <accent><time>s"
   cancelled-bar: "<error>Téléportation annulée"
   cancelled-move: "<error>Téléportation annulée : tu as bougé."

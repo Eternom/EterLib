@@ -22,7 +22,11 @@ player:
   unknown: "<error>Unknown player: <accent><player></accent>."
 
 teleport:
-  warmup-start: "<info>Teleporting in <accent><time>s</accent>, don't move!"
+  busy: "<error>A teleport is already in progress: wait for it to end."
+  countdown-title: "<accent><bold><time>"
+  countdown-still: "<info>To <accent><destination></accent> · don't move"
+  countdown-free: "<info>To <accent><destination></accent>"
+  warmup-start: "<info>Teleporting in <accent><time>s</accent>."
   warmup-bar: "<info>Teleporting to <accent><destination></accent> <dark_gray>· <accent><time>s"
   cancelled-bar: "<error>Teleport cancelled"
   cancelled-move: "<error>Teleport cancelled: you moved."
