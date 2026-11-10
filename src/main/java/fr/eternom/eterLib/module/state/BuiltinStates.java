@@ -3,7 +3,7 @@ package fr.eternom.eterLib.module.state;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.damage.DamageType;
+import fr.eternom.eterLib.module.combat.DamageKind;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -14,13 +14,14 @@ import org.bukkit.util.Vector;
  * Poids (valeur d'équilibrage par seconde et par unité) : un étourdissement d'1 s vaut 6, un saignement d'1 dégât/s
  * pendant 1 s vaut 1 ; de quoi comparer deux capacités qui posent des états différents.
  * <pre>
- *   bleed     dégâts/s par pile (×2 en courant), 5 piles, à travers l'armure
+ *   bleed     dégâts/s par pile (×2 en courant), 5 piles, dégâts bruts
  *   burn      dégâts/s, la plus forte reste ; éteint dans l'eau ; purgeable
  *   stun      contrôle : ni bouger, ni frapper, ni capacité
  *   root      contrôle : ne bouge plus, frappe encore
  *   slow      part de la vitesse retirée (0,3 = -30 %), la plus forte reste
  *   freeze    -12 % de vitesse par pile, 5 piles : étourdi 1,5 s
  *   fragile   part de l'armure retirée (0,3 = -30 %)
+ *   shatter   part de la résistance magique retirée (brisure)
  *   weakness  part des dégâts infligés retirée
  *   mark      part de dégâts reçus en plus
  *   silence   contrôle : pas de capacité
@@ -36,10 +37,10 @@ public final class BuiltinStates {
     public static void register(States states) {
         states.register(StateType.builder("bleed", StateType.Category.DAMAGE)
                 .stacking(StateType.Stacking.STACK, 5).weight(1).icon("<dark_red>🩸").particle(Particle.DAMAGE_INDICATOR)
-                .damageOverTime(1, DamageType.MAGIC, 2).build());
+                .damageOverTime(1, DamageKind.TRUE, 2).build());
         states.register(StateType.builder("burn", StateType.Category.DAMAGE)
                 .stacking(StateType.Stacking.STRONGEST, 1).weight(1).purgeable().icon("<gold>🔥").particle(Particle.FLAME)
-                .damageOverTime(1, DamageType.ON_FIRE, 1)
+                .damageOverTime(1, DamageKind.MAGIC, 1)
                 .onTick((entity, state) -> {
                     if (entity.isInWater()) {
                         state.set(state.power(), state.stacks(), 0, state.source());
@@ -58,6 +59,8 @@ public final class BuiltinStates {
                 .build());
         states.register(StateType.builder("fragile", StateType.Category.DEBUFF)
                 .stacking(StateType.Stacking.STRONGEST, 1).weight(4).icon("<red>⛨").particle(Particle.CRIT).armor(1).build());
+        states.register(StateType.builder("shatter", StateType.Category.DEBUFF)
+                .stacking(StateType.Stacking.STRONGEST, 1).weight(4).icon("<light_purple>◇").particle(Particle.WAX_OFF).magicResist(1).build());
         states.register(StateType.builder("weakness", StateType.Category.DEBUFF)
                 .stacking(StateType.Stacking.STRONGEST, 1).weight(4).icon("<dark_gray>⚔").particle(Particle.SMOKE).damageDealt(-1).build());
         states.register(StateType.builder("mark", StateType.Category.DEBUFF)

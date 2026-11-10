@@ -37,6 +37,9 @@ teleport:
   world-missing: "<error>The world of <accent><destination></accent> no longer exists."
   target-gone: "<error><accent><destination></accent> is no longer here."
 
+combat:
+  stats-header: "<info>Combat stats of <accent><target></accent>:"
+  stats-line: "<dark_gray>▸ <accent><stat></accent> <white><value></white> <dark_gray>(<sources>)"
 state:
   usage: "<error>/eterlib state types | list [player] | apply <state> <power> <seconds> [player] | clear [player] <dark_gray>(no player: the entity you look at, else yourself)"
   unknown: "<error>Unknown state: <accent><state></accent> <dark_gray>(/eterlib state types)"

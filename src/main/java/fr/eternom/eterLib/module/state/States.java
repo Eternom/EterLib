@@ -9,8 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -71,6 +69,7 @@ public final class States implements Listener {
     private final long controlImmunityMillis;
     private final boolean actionBar;
     private boolean dealing;
+    private fr.eternom.eterLib.module.combat.CombatSystem combat;
     private long ticks;
 
     public States(JavaPlugin plugin, double maxTenacity, double controlImmunitySeconds, boolean actionBar) {
@@ -79,6 +78,11 @@ public final class States implements Listener {
         this.maxTenacity = maxTenacity;
         this.controlImmunityMillis = Math.round(Math.max(0, controlImmunitySeconds) * 1000);
         this.actionBar = actionBar;
+    }
+
+    /** Le combat (dégâts typés des états) : posé par EterLib au démarrage. */
+    public void setCombat(fr.eternom.eterLib.module.combat.CombatSystem combat) {
+        this.combat = combat;
     }
 
     public void start() {
@@ -266,6 +270,28 @@ public final class States implements Listener {
                 : Bukkit.getEntity(taunt.source()) instanceof LivingEntity source && source.isValid() ? source : null;
     }
 
+    /** Part de l'armure qui reste (fragilité) : lue par le combat. */
+    public double armorFactor(LivingEntity entity) {
+        double factor = 1;
+        for (StateInstance state : active(entity)) {
+            if (state.type().armor() > 0) {
+                factor *= StateRules.speedFactor(state.type().armor(), state.amount());
+            }
+        }
+        return factor;
+    }
+
+    /** Part de la résistance magique qui reste (brisure) : lue par le combat. */
+    public double magicResistFactor(LivingEntity entity) {
+        double factor = 1;
+        for (StateInstance state : active(entity)) {
+            if (state.type().magicResist() > 0) {
+                factor *= StateRules.speedFactor(state.type().magicResist(), state.amount());
+            }
+        }
+        return factor;
+    }
+
     public double damageDealtFactor(LivingEntity entity) {
         double factor = 1;
         for (StateInstance state : active(entity)) {
@@ -303,7 +329,6 @@ public final class States implements Listener {
     /** Remet les modificateurs (vitesse, saut, armure) d'après les états actifs. */
     void refresh(LivingEntity entity) {
         double speed = 1;
-        double armor = 1;
         boolean rooted = false;
         for (StateInstance state : active(entity)) {
             StateType type = state.type();
@@ -313,14 +338,9 @@ public final class States implements Listener {
             if (type.slow() > 0) {
                 speed *= StateRules.speedFactor(type.slow(), state.amount());
             }
-            if (type.armor() > 0) {
-                armor *= StateRules.speedFactor(type.armor(), state.amount());
-            }
         }
         modifier(entity, Attribute.MOVEMENT_SPEED, rooted ? 0 : speed);
         modifier(entity, Attribute.JUMP_STRENGTH, rooted ? 0 : 1);
-        modifier(entity, Attribute.ARMOR, armor);
-        modifier(entity, Attribute.ARMOR_TOUGHNESS, armor);
     }
 
     private void modifier(LivingEntity entity, Attribute attribute, double factor) {
@@ -372,7 +392,7 @@ public final class States implements Listener {
                 if (type.damagePerSecond() > 0 && now >= state.nextDamageAt()) {
                     state.nextDamageAt(state.nextDamageAt() + 1000);
                     double amount = type.damagePerSecond() * state.amount() * (moving(entity) ? type.movingFactor() : 1);
-                    deal(entity, amount, type.damageType(), state.source());
+                    deal(entity, amount, type.damageKind(), state.source());
                 }
                 if (type.blocksMove() && entity instanceof Mob mob) {
                     mob.getPathfinder().stopPathfinding();
@@ -404,27 +424,16 @@ public final class States implements Listener {
     }
 
     /** Dégâts d'un état, avec leur auteur ; sans toucher aux frames d'invulnérabilité des vrais coups. */
-    private void deal(LivingEntity entity, double amount, DamageType type, UUID sourceId) {
-        if (amount <= 0 || entity.isDead()) {
+    private void deal(LivingEntity entity, double amount, fr.eternom.eterLib.module.combat.DamageKind kind, UUID sourceId) {
+        if (amount <= 0 || entity.isDead() || combat == null) {
             return;
         }
-        DamageSource.Builder builder = DamageSource.builder(type);
         Entity source = sourceId == null ? null : Bukkit.getEntity(sourceId);
-        if (source != null && source.isValid()) {
-            builder.withCausingEntity(source).withDirectEntity(source);
-        }
-        int noDamageTicks = entity.getNoDamageTicks();
-        double lastDamage = entity.getLastDamage();
         dealing = true;
         try {
-            entity.setNoDamageTicks(0);
-            entity.damage(amount, builder.build());
+            combat.damage(source != null && source.isValid() ? source : null, entity, amount, kind);
         } finally {
             dealing = false;
-            if (!entity.isDead()) {
-                entity.setNoDamageTicks(noDamageTicks);
-                entity.setLastDamage(lastDamage);
-            }
         }
     }
 
@@ -466,19 +475,9 @@ public final class States implements Listener {
         if (damager instanceof Projectile projectile && projectile.getShooter() instanceof Entity shooter) {
             damager = shooter;
         }
-        double factor = 1;
-        if (damager instanceof LivingEntity attacker) {
-            if (!canAttack(attacker)) {
-                event.setCancelled(true);
-                return;
-            }
-            factor *= damageDealtFactor(attacker);
-        }
-        if (event.getEntity() instanceof LivingEntity victim) {
-            factor *= damageTakenFactor(victim);
-        }
-        if (factor != 1) {
-            event.setDamage(event.getDamage() * factor);
+        // Étourdi, apeuré : ses coups ne partent pas (les facteurs de dégâts sont appliqués par le combat)
+        if (damager instanceof LivingEntity attacker && !canAttack(attacker)) {
+            event.setCancelled(true);
         }
     }
 

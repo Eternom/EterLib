@@ -93,6 +93,7 @@ public final class EterLib extends JavaPlugin {
     private Actions actions;
     private fr.eternom.eterLib.module.reputation.Reputation reputation;
     private fr.eternom.eterLib.module.state.States states;
+    private fr.eternom.eterLib.module.combat.CombatSystem combatSystem;
 
     public static EterLib get() {
         if (instance == null) {
@@ -200,7 +201,14 @@ public final class EterLib extends JavaPlugin {
         fr.eternom.eterLib.module.state.BuiltinStates.register(states);
         Bukkit.getPluginManager().registerEvents(states, this);
         states.start();
-        ActionCommand actionCommand = new ActionCommand(actions, messages, new fr.eternom.eterLib.module.state.StateCommand(states, messages));
+        combatSystem = new fr.eternom.eterLib.module.combat.CombatSystem(states, getConfig().getConfigurationSection("combat"));
+        states.setCombat(combatSystem);
+        Bukkit.getPluginManager().registerEvents(combatSystem, this);
+        // La ténacité des objets et des classes réduit les contrôles
+        states.addTenacity(entity -> combatSystem.stats(entity).get(fr.eternom.eterLib.module.combat.Stat.TENACITY));
+        fr.eternom.eterLib.module.state.StateCommand stateCommand = new fr.eternom.eterLib.module.state.StateCommand(states, messages);
+        stateCommand.setCombat(combatSystem);
+        ActionCommand actionCommand = new ActionCommand(actions, messages, stateCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
 
@@ -339,6 +347,11 @@ public final class EterLib extends JavaPlugin {
     /** Les états (saignement, étourdissement...) des joueurs et des monstres : EterMob et les classes. Depuis 1.26.0. */
     public fr.eternom.eterLib.module.state.States getStates() {
         return states;
+    }
+
+    /** Le combat : types de dégâts, statistiques (armure, résistance magique, critique, esquive...), dégâts typés. Depuis 1.27.0. */
+    public fr.eternom.eterLib.module.combat.CombatSystem getCombatSystem() {
+        return combatSystem;
     }
 
     public Actions getActions() {

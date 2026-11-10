@@ -24,10 +24,39 @@ public final class StateCommand {
 
     private final States states;
     private final Messages messages;
+    private fr.eternom.eterLib.module.combat.CombatSystem combat;
 
     public StateCommand(States states, Messages messages) {
         this.states = states;
         this.messages = messages;
+    }
+
+    public void setCombat(fr.eternom.eterLib.module.combat.CombatSystem combat) {
+        this.combat = combat;
+    }
+
+    /** /eterlib stats [joueur] : les statistiques de combat (joueur nommé, entité visée, sinon soi) et leurs sources. */
+    public void stats(CommandSender sender, String[] args) {
+        LivingEntity target = target(sender, args.length > 1 ? args[1] : null);
+        if (target == null || combat == null) {
+            return;
+        }
+        var sheet = combat.stats(target);
+        double constant = combat.constant();
+        messages.send(sender, "combat.stats-header", "target", target.getName());
+        for (var stat : fr.eternom.eterLib.module.combat.Stat.values()) {
+            double total = sheet.get(stat);
+            if (total == 0) {
+                continue;
+            }
+            String value = stat.part() ? Math.round(total * 100) + " %" : format(total);
+            if (stat == fr.eternom.eterLib.module.combat.Stat.ARMOR || stat == fr.eternom.eterLib.module.combat.Stat.MAGIC_RESIST) {
+                value += " (-" + Math.round(fr.eternom.eterLib.module.combat.CombatMath.reduction(total, constant) * 100) + " %)";
+            }
+            java.util.List<String> parts = new java.util.ArrayList<>();
+            sheet.sources(stat).forEach((source, part) -> parts.add(source + " " + (stat.part() ? Math.round(part * 100) + " %" : format(part))));
+            messages.send(sender, "combat.stats-line", "stat", stat.id(), "value", value, "sources", String.join(", ", parts));
+        }
     }
 
     /** args[0] = « state ». */

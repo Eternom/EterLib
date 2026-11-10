@@ -60,6 +60,7 @@ public class ActionCommand implements TabExecutor {
                 actions.run(player, lines);
             }
             case "state" -> states.run(sender, args);
+            case "stats" -> states.stats(sender, args);
             default -> messages.send(sender, "action.usage");
         }
         return true;
@@ -79,7 +80,7 @@ public class ActionCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            return List.of("actions", "action", "state").stream().filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
+            return List.of("actions", "action", "state", "stats").stream().filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         }
         if (args[0].equalsIgnoreCase("state")) {
             return states.complete(args);

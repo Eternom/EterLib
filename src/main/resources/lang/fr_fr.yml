@@ -37,7 +37,11 @@ teleport:
   world-missing: "<error>Le monde de <accent><destination></accent> n'existe plus."
   target-gone: "<error><accent><destination></accent> n'est plus là."
 
+combat:
+  stats-header: "<info>Statistiques de combat de <accent><target></accent> :"
+  stats-line: "<dark_gray>▸ <accent><stat></accent> <white><value></white> <dark_gray>(<sources>)"
 state:
+  stats-usage: "<error>/eterlib stats [joueur]"
   usage: "<error>/eterlib state types | list [joueur] | apply <état> <puissance> <secondes> [joueur] | clear [joueur] <dark_gray>(sans joueur : l'entité visée, sinon toi)"
   unknown: "<error>État inconnu : <accent><state></accent> <dark_gray>(/eterlib state types)"
   no-target: "<error>Joueur introuvable sur ce serveur."

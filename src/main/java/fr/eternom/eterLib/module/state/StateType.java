@@ -1,7 +1,7 @@
 package fr.eternom.eterLib.module.state;
 
 import org.bukkit.Particle;
-import org.bukkit.damage.DamageType;
+import fr.eternom.eterLib.module.combat.DamageKind;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.Objects;
@@ -38,8 +38,9 @@ public final class StateType {
     private final double damageDealt;
     private final double damageTaken;
     private final double armor;
+    private final double magicResist;
     private final double damagePerSecond;
-    private final DamageType damageType;
+    private final DamageKind damageKind;
     private final double movingFactor;
     private final String escalateTo;
     private final double escalateSeconds;
@@ -61,8 +62,9 @@ public final class StateType {
         this.damageDealt = builder.damageDealt;
         this.damageTaken = builder.damageTaken;
         this.armor = builder.armor;
+        this.magicResist = builder.magicResist;
         this.damagePerSecond = builder.damagePerSecond;
-        this.damageType = builder.damageType;
+        this.damageKind = builder.damageKind;
         this.movingFactor = builder.movingFactor;
         this.escalateTo = builder.escalateTo;
         this.escalateSeconds = builder.escalateSeconds;
@@ -142,12 +144,17 @@ public final class StateType {
         return armor;
     }
 
+    /** Part de la résistance magique retirée par unité (brisure). */
+    public double magicResist() {
+        return magicResist;
+    }
+
     public double damagePerSecond() {
         return damagePerSecond;
     }
 
-    public DamageType damageType() {
-        return damageType;
+    public DamageKind damageKind() {
+        return damageKind;
     }
 
     /** Dégâts sur la durée × ce facteur si la cible court (saignement). */
@@ -207,8 +214,9 @@ public final class StateType {
         private double damageDealt;
         private double damageTaken;
         private double armor;
+        private double magicResist;
         private double damagePerSecond;
-        private DamageType damageType = DamageType.MAGIC;
+        private DamageKind damageKind = DamageKind.MAGIC;
         private double movingFactor = 1;
         private String escalateTo;
         private double escalateSeconds;
@@ -280,9 +288,14 @@ public final class StateType {
             return this;
         }
 
-        public Builder damageOverTime(double perSecond, DamageType type, double movingFactor) {
+        public Builder magicResist(double part) {
+            this.magicResist = part;
+            return this;
+        }
+
+        public Builder damageOverTime(double perSecond, DamageKind kind, double movingFactor) {
             this.damagePerSecond = perSecond;
-            this.damageType = type;
+            this.damageKind = kind;
             this.movingFactor = movingFactor;
             return this;
         }
