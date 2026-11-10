@@ -313,6 +313,38 @@ public final class Actions implements Listener {
     }
 
     /**
+     * Thread principal : ces conditions (« ?eterjob:rank mineur expert », « ?!... ») sont-elles toutes vraies, pour ce
+     * joueur ? Une condition qui n'est pas déclarée ici, ou illisible, compte comme fausse. Depuis 1.25.0.
+     */
+    public boolean test(Player player, List<String> conditions) {
+        Map<String, String> values = Map.of("player", player.getName(), "uuid", player.getUniqueId().toString(),
+                "server", serverName, "world", player.getWorld().getName());
+        for (String text : conditions) {
+            String condition = text.startsWith("?") ? text : "?" + text;
+            ActionLine line;
+            try {
+                line = ActionLine.parse(condition);
+            } catch (IllegalArgumentException e) {
+                lib.getLogger().warning("Condition illisible (" + text + ") : " + e.getMessage());
+                return false;
+            }
+            Registered registered = local.get(line.id());
+            if (registered == null || registered.condition() == null) {
+                return false;
+            }
+            try {
+                if (registered.condition().test(player, line.resolve(values)) == line.negate()) {
+                    return false;
+                }
+            } catch (RuntimeException e) {
+                lib.getLogger().severe("Condition " + line.id() + " en erreur pour " + player.getName() + " : " + e);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * L'action n'est pas ici (ou un autre serveur est imposé) : la suite de la chaîne est mise de côté, et le joueur est
      * envoyé sur un serveur qui la fournit ; elle se lance à son arrivée.
      */

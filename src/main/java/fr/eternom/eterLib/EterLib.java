@@ -91,6 +91,7 @@ public final class EterLib extends JavaPlugin {
     private MenuHistory menuHistory;
     private Ranks ranks;
     private Actions actions;
+    private fr.eternom.eterLib.module.reputation.Reputation reputation;
 
     public static EterLib get() {
         if (instance == null) {
@@ -187,6 +188,10 @@ public final class EterLib extends JavaPlugin {
         actions = new Actions(this, redis, messages, serverName, servers, teleports, combat, getConfig().getBoolean("actions.debug", false));
         Bukkit.getPluginManager().registerEvents(actions, this);
         actions.start();
+        reputation = new fr.eternom.eterLib.module.reputation.Reputation(this, database, playerTags,
+                network(this, "eterlib-reputation", messages));
+        Bukkit.getPluginManager().registerEvents(reputation, this);
+        reputation.registerActions(actions);
         ActionCommand actionCommand = new ActionCommand(actions, messages);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
@@ -318,6 +323,11 @@ public final class EterLib extends JavaPlugin {
     /** Joueurs invisibles du réseau (staff) : canSee avant de montrer un joueur à un autre. */
     /** Le chemin des joueurs dans les menus (bouton Retour). */
     /** Les actions du réseau : à déclarer (register) et à lancer (run) par les PNJ, menus, commandes. Depuis 1.22.0. */
+    /** La réputation des joueurs (une pour tout le réseau, × le ratio de chaque PNJ). Depuis 1.25.0. */
+    public fr.eternom.eterLib.module.reputation.Reputation getReputation() {
+        return reputation;
+    }
+
     public Actions getActions() {
         return actions;
     }
