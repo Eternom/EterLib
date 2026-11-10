@@ -34,6 +34,7 @@ public class PlayerListener implements Listener {
         }
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
+        Skins.remember(player);
         String name = player.getName();
         String locale = player.locale().toString().toLowerCase(Locale.ROOT);
         Tasks.async(plugin, () -> directory.join(uuid, name, locale), "Connexion non enregistrée dans eter_players : " + name);

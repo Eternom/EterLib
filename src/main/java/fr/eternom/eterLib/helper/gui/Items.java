@@ -41,7 +41,8 @@ public final class Items {
 
     public static ItemStack head(PlayerProfile profile, Component name, List<Component> lore) {
         ItemStack item = item(Material.PLAYER_HEAD, name, lore);
-        item.editMeta(SkullMeta.class, meta -> meta.setPlayerProfile(profile));
+        // Avec sa texture si on la connaît : sinon le client montre Steve (Skins)
+        item.editMeta(SkullMeta.class, meta -> meta.setPlayerProfile(fr.eternom.eterLib.module.player.Skins.enrich(profile)));
         return item;
     }
 }
