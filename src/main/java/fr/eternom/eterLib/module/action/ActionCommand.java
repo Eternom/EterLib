@@ -15,13 +15,17 @@ import java.util.Locale;
  * /eterlib (staff, eterlib.admin) :
  * - actions [filtre] : les actions et conditions connues du réseau, avec leur plugin et leurs arguments ;
  * - action <ligne> [; ligne...] : lance une chaîne sur soi (pour essayer ce qu'on mettra dans un PNJ).
+ * - state ... : les états (StateCommand).
  */
 public class ActionCommand implements TabExecutor {
 
     private final Actions actions;
     private final Messages messages;
 
-    public ActionCommand(Actions actions, Messages messages) {
+    private final fr.eternom.eterLib.module.state.StateCommand states;
+
+    public ActionCommand(Actions actions, Messages messages, fr.eternom.eterLib.module.state.StateCommand states) {
+        this.states = states;
         this.actions = actions;
         this.messages = messages;
     }
@@ -55,6 +59,7 @@ public class ActionCommand implements TabExecutor {
                 }
                 actions.run(player, lines);
             }
+            case "state" -> states.run(sender, args);
             default -> messages.send(sender, "action.usage");
         }
         return true;
@@ -74,7 +79,10 @@ public class ActionCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            return List.of("actions", "action").stream().filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
+            return List.of("actions", "action", "state").stream().filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
+        }
+        if (args[0].equalsIgnoreCase("state")) {
+            return states.complete(args);
         }
         if (!args[0].equalsIgnoreCase("action")) {
             return List.of();

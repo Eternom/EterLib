@@ -168,3 +168,12 @@ language:
 # écrite dans la console.
 actions:
   debug: false
+
+# États (saignement, étourdissement...) des joueurs et des monstres, partagés par EterMob et les classes.
+#  max-tenacity             : la ténacité (somme des bonus) ne réduit jamais un contrôle de plus que ça (0,8 = -80 %)
+#  control-immunity-seconds : après un contrôle (étourdi, enraciné...), immunisé aux contrôles pendant ce temps
+#  action-bar               : les états du joueur dans sa barre d'action (icône, piles, secondes)
+states:
+  max-tenacity: 0.8
+  control-immunity-seconds: 3
+  action-bar: true

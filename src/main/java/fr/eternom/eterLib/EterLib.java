@@ -92,6 +92,7 @@ public final class EterLib extends JavaPlugin {
     private Ranks ranks;
     private Actions actions;
     private fr.eternom.eterLib.module.reputation.Reputation reputation;
+    private fr.eternom.eterLib.module.state.States states;
 
     public static EterLib get() {
         if (instance == null) {
@@ -192,7 +193,14 @@ public final class EterLib extends JavaPlugin {
                 network(this, "eterlib-reputation", messages));
         Bukkit.getPluginManager().registerEvents(reputation, this);
         reputation.registerActions(actions);
-        ActionCommand actionCommand = new ActionCommand(actions, messages);
+        ConfigurationSection stateConfig = getConfig().getConfigurationSection("states");
+        states = new fr.eternom.eterLib.module.state.States(this, stateConfig == null ? 0.8 : stateConfig.getDouble("max-tenacity", 0.8),
+                stateConfig == null ? 3 : stateConfig.getDouble("control-immunity-seconds", 3),
+                stateConfig == null || stateConfig.getBoolean("action-bar", true));
+        fr.eternom.eterLib.module.state.BuiltinStates.register(states);
+        Bukkit.getPluginManager().registerEvents(states, this);
+        states.start();
+        ActionCommand actionCommand = new ActionCommand(actions, messages, new fr.eternom.eterLib.module.state.StateCommand(states, messages));
         java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
 
@@ -326,6 +334,11 @@ public final class EterLib extends JavaPlugin {
     /** La réputation des joueurs (une pour tout le réseau, × le ratio de chaque PNJ). Depuis 1.25.0. */
     public fr.eternom.eterLib.module.reputation.Reputation getReputation() {
         return reputation;
+    }
+
+    /** Les états (saignement, étourdissement...) des joueurs et des monstres : EterMob et les classes. Depuis 1.26.0. */
+    public fr.eternom.eterLib.module.state.States getStates() {
+        return states;
     }
 
     public Actions getActions() {

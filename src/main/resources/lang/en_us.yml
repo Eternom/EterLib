@@ -37,6 +37,16 @@ teleport:
   world-missing: "<error>The world of <accent><destination></accent> no longer exists."
   target-gone: "<error><accent><destination></accent> is no longer here."
 
+state:
+  usage: "<error>/eterlib state types | list [player] | apply <state> <power> <seconds> [player] | clear [player] <dark_gray>(no player: the entity you look at, else yourself)"
+  unknown: "<error>Unknown state: <accent><state></accent> <dark_gray>(/eterlib state types)"
+  no-target: "<error>Player not found on this server."
+  applied: "<success>State <accent><state></accent> applied to <accent><target></accent>."
+  refused: "<error><accent><state></accent> refused on <accent><target></accent> <dark_gray>(immunity, tenacity, creative or cancelled)."
+  cleared: "<success><accent><count></accent> state(s) removed from <accent><target></accent>."
+  type-line: "<dark_gray>▸ <accent><id></accent> <gray><category> · weight <weight> · <stacks> stack(s) max"
+  list-header: "<info>States of <accent><target></accent>: <accent><count></accent> <dark_gray>(tenacity <tenacity>)"
+  list-line: "<dark_gray>▸ <accent><id></accent> <gray>power <power> · <stacks> stack(s) · <time> s"
 action:
   unknown: "<error>Unknown action on the network: <accent><action></accent>."
   unavailable: "<error>This action is not available on any server right now (<accent><action></accent>)."

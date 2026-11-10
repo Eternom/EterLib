@@ -37,6 +37,16 @@ teleport:
   world-missing: "<error>Le monde de <accent><destination></accent> n'existe plus."
   target-gone: "<error><accent><destination></accent> n'est plus là."
 
+state:
+  usage: "<error>/eterlib state types | list [joueur] | apply <état> <puissance> <secondes> [joueur] | clear [joueur] <dark_gray>(sans joueur : l'entité visée, sinon toi)"
+  unknown: "<error>État inconnu : <accent><state></accent> <dark_gray>(/eterlib state types)"
+  no-target: "<error>Joueur introuvable sur ce serveur."
+  applied: "<success>État <accent><state></accent> posé sur <accent><target></accent>."
+  refused: "<error><accent><state></accent> refusé sur <accent><target></accent> <dark_gray>(immunité, ténacité, créatif ou annulé)."
+  cleared: "<success><accent><count></accent> état(s) retiré(s) de <accent><target></accent>."
+  type-line: "<dark_gray>▸ <accent><id></accent> <gray><category> · poids <weight> · <stacks> pile(s) max"
+  list-header: "<info>États de <accent><target></accent> : <accent><count></accent> <dark_gray>(ténacité <tenacity>)"
+  list-line: "<dark_gray>▸ <accent><id></accent> <gray>puissance <power> · <stacks> pile(s) · <time> s"
 action:
   unknown: "<error>Action inconnue sur le réseau : <accent><action></accent>."
   unavailable: "<error>Cette action n'est disponible sur aucun serveur pour l'instant (<accent><action></accent>)."
