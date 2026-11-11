@@ -37,6 +37,14 @@ public class MenuListener implements Listener {
         });
     }
 
+    /** Affichage compact (Compact) : après que le menu a posé ses items, au moment où il s'ouvre. */
+    @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true)
+    public void onOpen(org.bukkit.event.inventory.InventoryOpenEvent event) {
+        if (event.getInventory().getHolder(false) instanceof Menu && event.getPlayer() instanceof Player player && Compact.enabled(player)) {
+            Compact.apply(event.getInventory());
+        }
+    }
+
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
         if (event.getInventory().getHolder(false) instanceof Menu) {
