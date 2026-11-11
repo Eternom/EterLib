@@ -38,6 +38,23 @@ teleport:
   target-gone: "<error><accent><destination></accent> is no longer here."
 
 combat:
+  magic-first: "<info><accent>Magic damage!</accent> It is reduced by your <accent>magic resist</accent>, not your armor. Your statistics: <accent><click:run_command:'/combat'>/combat</click></accent>"
+  player:
+    header: "<primary>Your combat statistics"
+    defense: "<dark_gray>▸ <info><stat>: <accent><value></accent> <dark_gray>(-<reduction> % damage)"
+    line: "<dark_gray>▸ <info><stat>: <accent><value>"
+    footer: "<dark_gray>Minecraft armor counts toward armor. The rest comes from items, states and later classes."
+    stat:
+      armor: "Armor"
+      magic_resist: "Magic resist"
+      armor_pen: "Armor penetration"
+      magic_pen: "Magic penetration"
+      physical_bonus: "Bonus physical damage"
+      magic_bonus: "Bonus magic damage"
+      crit_chance: "Critical chance"
+      crit_damage: "Bonus critical damage"
+      dodge: "Dodge"
+      tenacity: "Tenacity (shorter controls)"
   stats-header: "<info>Combat stats of <accent><target></accent>:"
   stats-line: "<dark_gray>▸ <accent><stat></accent> <white><value></white> <dark_gray>(<sources>)"
 state:

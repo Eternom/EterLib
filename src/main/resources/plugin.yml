@@ -13,6 +13,10 @@ commands:
     description: Les actions du réseau (lister, essayer).
     usage: /eterlib <actions [filtre] | action <ligne> [; ligne...]>
     permission: eterlib.admin
+  combat:
+    description: Tes statistiques de combat (armure, résistance magique, critique, esquive...).
+    usage: /combat
+    permission: eterlib.combat
 
 libraries:
   - com.zaxxer:HikariCP:7.0.2
@@ -20,6 +24,9 @@ libraries:
   - org.mariadb.jdbc:mariadb-java-client:3.5.6
 
 permissions:
+  eterlib.combat:
+    description: /combat (ses statistiques de combat).
+    default: true
   eterlib.admin:
     description: /eterlib (lister et essayer les actions du réseau).
     default: op

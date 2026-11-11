@@ -162,6 +162,24 @@ public final class CombatSystem implements Listener {
 
     // ---------- Infliger ----------
 
+    private fr.eternom.eterLib.helper.message.Messages messages;
+    private static final org.bukkit.NamespacedKey MAGIC_SEEN = new org.bukkit.NamespacedKey("eterlib", "magic_seen");
+
+    /** Textes d'EterLib, pour expliquer une fois les dégâts magiques à un joueur. */
+    public void setMessages(fr.eternom.eterLib.helper.message.Messages messages) {
+        this.messages = messages;
+    }
+
+    /** Premier dégât magique reçu par un joueur : une fois, ce qui le réduit (la résistance magique, pas l'armure). */
+    private void explainMagic(LivingEntity target, DamageKind kind) {
+        if (kind != DamageKind.MAGIC || messages == null || !(target instanceof Player player)
+                || player.getPersistentDataContainer().has(MAGIC_SEEN, org.bukkit.persistence.PersistentDataType.BYTE)) {
+            return;
+        }
+        player.getPersistentDataContainer().set(MAGIC_SEEN, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1);
+        messages.send(player, "combat.magic-first");
+    }
+
     /**
      * Inflige des dégâts typés venant de source (null : sans auteur), par le calcul d'EterLib. Ne touche pas aux frames
      * d'invulnérabilité des vrais coups (plusieurs capacités d'affilée passent toutes).
@@ -170,6 +188,7 @@ public final class CombatSystem implements Listener {
         if (amount <= 0 || target.isDead()) {
             return;
         }
+        explainMagic(target, kind);
         DamageType type = switch (kind) {
             case MAGIC -> source == null ? DamageType.MAGIC : DamageType.INDIRECT_MAGIC;
             case TRUE -> DamageType.GENERIC;

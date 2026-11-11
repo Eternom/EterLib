@@ -203,6 +203,7 @@ public final class EterLib extends JavaPlugin {
         states.start();
         combatSystem = new fr.eternom.eterLib.module.combat.CombatSystem(states, getConfig().getConfigurationSection("combat"));
         states.setCombat(combatSystem);
+        combatSystem.setMessages(messages);
         Bukkit.getPluginManager().registerEvents(combatSystem, this);
         // La ténacité des objets et des classes réduit les contrôles
         states.addTenacity(entity -> combatSystem.stats(entity).get(fr.eternom.eterLib.module.combat.Stat.TENACITY));
@@ -211,6 +212,9 @@ public final class EterLib extends JavaPlugin {
         ActionCommand actionCommand = new ActionCommand(actions, messages, stateCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
+        fr.eternom.eterLib.module.combat.CombatCommand combatCommand = new fr.eternom.eterLib.module.combat.CombatCommand(combatSystem, messages);
+        java.util.Objects.requireNonNull(getCommand("combat")).setExecutor(combatCommand);
+        java.util.Objects.requireNonNull(getCommand("combat")).setTabCompleter(combatCommand);
 
         new Events(this, TeleportListener.DamageMode.parse(teleport == null ? null : teleport.getString("cancel-on-damage", "combat")));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(

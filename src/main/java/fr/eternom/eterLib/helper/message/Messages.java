@@ -47,6 +47,17 @@ public class Messages {
         this.prefix = MINI_MESSAGE.deserialize(lang.getPrefix(), colors);
     }
 
+    /** Clés déjà signalées dans la console (une fois chacune). */
+    private static final java.util.Set<String> REPORTED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** Une clé absente partout : affichée en rouge, et signalée une fois dans la console pour être ajoutée. */
+    private Component missing(String key) {
+        if (REPORTED.add(lang.owner() + "/" + key)) {
+            org.bukkit.Bukkit.getLogger().warning("[" + lang.owner() + "] Texte absent de lang/ : " + key);
+        }
+        return Component.text(key, NamedTextColor.RED);
+    }
+
     /** Préfixe commun des messages (ex : « Core »), pour composer une ligne à la main. */
     public Component prefix() {
         return prefix;
@@ -55,7 +66,7 @@ public class Messages {
     public Component get(CommandSender receiver, String key, String... placeholders) {
         String raw = lang.get(localeOf(receiver), key);
         if (raw == null) {
-            return Component.text(key, NamedTextColor.RED); // clé manquante : visible pour être corrigée
+            return missing(key); // clé manquante : visible pour être corrigée
         }
         return MINI_MESSAGE.deserialize(raw, colors, placeholders(withRef(receiver, key, placeholders)));
     }
@@ -67,7 +78,7 @@ public class Messages {
     public Component get(CommandSender receiver, String key, TagResolver tags, String... placeholders) {
         String raw = lang.get(localeOf(receiver), key);
         if (raw == null) {
-            return Component.text(key, NamedTextColor.RED);
+            return missing(key);
         }
         return MINI_MESSAGE.deserialize(raw, colors, tags, placeholders(withRef(receiver, key, placeholders)));
     }

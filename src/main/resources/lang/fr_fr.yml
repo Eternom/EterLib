@@ -38,6 +38,23 @@ teleport:
   target-gone: "<error><accent><destination></accent> n'est plus là."
 
 combat:
+  magic-first: "<info><accent>Dégât magique !</accent> Il est réduit par ta <accent>résistance magique</accent>, pas par ton armure. Tes statistiques : <accent><click:run_command:'/combat'>/combat</click></accent>"
+  player:
+    header: "<primary>Tes statistiques de combat"
+    defense: "<dark_gray>▸ <info><stat> : <accent><value></accent> <dark_gray>(-<reduction> % de dégâts)"
+    line: "<dark_gray>▸ <info><stat> : <accent><value>"
+    footer: "<dark_gray>L'armure de Minecraft compte dans l'armure. Les autres viennent des objets, des états et plus tard des classes."
+    stat:
+      armor: "Armure"
+      magic_resist: "Résistance magique"
+      armor_pen: "Pénétration d'armure"
+      magic_pen: "Pénétration magique"
+      physical_bonus: "Dégâts physiques en plus"
+      magic_bonus: "Dégâts magiques en plus"
+      crit_chance: "Chance de critique"
+      crit_damage: "Dégâts critiques en plus"
+      dodge: "Esquive"
+      tenacity: "Ténacité (contrôles plus courts)"
   stats-header: "<info>Statistiques de combat de <accent><target></accent> :"
   stats-line: "<dark_gray>▸ <accent><stat></accent> <white><value></white> <dark_gray>(<sources>)"
 state:

@@ -33,6 +33,11 @@ public class Lang {
      *                quand le plugin n'a pas la clé ; null pour EterLib lui-même
      * @param bundled langues fournies dans le jar du plugin (lang/<locale>.yml), ex : "en_us", "fr_fr"
      */
+    /** Nom du plugin à qui sont ces textes (avertissements). */
+    public String owner() {
+        return plugin.getName();
+    }
+
     public Lang(JavaPlugin plugin, String defaultLocale, Map<String, String> colors, String prefix, Lang common, String... bundled) {
         this.common = common;
         this.plugin = plugin;
