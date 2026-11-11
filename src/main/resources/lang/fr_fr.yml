@@ -67,6 +67,7 @@ action:
   list-line-remote: "<dark_gray> ▸ <info><usage> <dark_gray>(<plugin>, autre serveur) <info><description>"
 
 menu:
+  page-of: "<dark_gray>Page <page>/<pages>"
   back: "<accent>« Retour"
   back-lore: "<dark_gray>▸ <info><command>"
   back-previous: "<dark_gray>▸ <info>Revenir au menu précédent"
