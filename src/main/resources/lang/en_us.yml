@@ -41,6 +41,7 @@ combat:
   stats-header: "<info>Combat stats of <accent><target></accent>:"
   stats-line: "<dark_gray>▸ <accent><stat></accent> <white><value></white> <dark_gray>(<sources>)"
 state:
+  stats-usage: "<error>/eterlib stats [player]"
   usage: "<error>/eterlib state types | list [player] | apply <state> <power> <seconds> [player] | clear [player] <dark_gray>(no player: the entity you look at, else yourself)"
   unknown: "<error>Unknown state: <accent><state></accent> <dark_gray>(/eterlib state types)"
   no-target: "<error>Player not found on this server."
