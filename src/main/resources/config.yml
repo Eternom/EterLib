@@ -3,7 +3,7 @@
 # ============================================================
 #
 #  Serveur, base de données, Redis, téléportation, langue et couleurs se
-#  règlent ICI une seule fois, pour EterHome, EterEssential, EterMarket...
+#  règlent ICI une seule fois, pour EterHome, EterEssential, EterJob...
 #  Chaque plugin n'a plus dans sa propre config que ses réglages à lui.
 #  Toute modification nécessite un redémarrage du serveur.
 

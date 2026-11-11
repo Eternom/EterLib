@@ -1,6 +1,6 @@
 # EterLib
 
-Socle commun des plugins Eter (EterHome, EterEssential, EterMarket…). Plugin Paper sans commande : il ouvre les
+Socle commun des plugins Eter (EterHome, EterEssential, EterJob…). Plugin Paper sans commande : il ouvre les
 connexions une seule fois et fournit les outils partagés. Document développeur, à tenir à jour avec le code.
 
 ## Ce qu'il fournit
