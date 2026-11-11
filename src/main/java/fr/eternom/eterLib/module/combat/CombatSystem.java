@@ -63,6 +63,8 @@ public final class CombatSystem implements Listener {
     private final double armorPerPoint;
     private final double toughnessPerPoint;
     private final double protectionPerLevel;
+    /** Résistance magique par niveau de Protection (la Protection vanilla réduit aussi la magie). */
+    private final double protectionMagicPerLevel;
     private final double specificPerLevel;
     private final double maxDodge;
     private final double maxCrit;
@@ -77,10 +79,19 @@ public final class CombatSystem implements Listener {
         ConfigurationSection vanilla = config == null ? null : config.getConfigurationSection("vanilla");
         ConfigurationSection max = config == null ? null : config.getConfigurationSection("max");
         this.constant = config == null ? 100 : Math.max(1, config.getDouble("defense-constant", 100));
-        this.armorPerPoint = vanilla == null ? 6 : vanilla.getDouble("armor-per-point", 6);
-        this.toughnessPerPoint = vanilla == null ? 2 : vanilla.getDouble("toughness-per-point", 2);
-        this.protectionPerLevel = vanilla == null ? 4 : vanilla.getDouble("protection-per-level", 4);
-        this.specificPerLevel = vanilla == null ? 6 : vanilla.getDouble("specific-protection-per-level", 6);
+        // Les anciennes valeurs par défaut (6 / 2 / 4 / 6, équipement vanilla très sous-évalué) sont remplacées par les
+        // nouvelles, proches du vanilla ; des valeurs changées à la main sont gardées
+        boolean oldDefaults = vanilla != null && vanilla.getDouble("armor-per-point") == 6 && vanilla.getDouble("toughness-per-point") == 2
+                && vanilla.getDouble("protection-per-level") == 4 && vanilla.getDouble("specific-protection-per-level") == 6;
+        if (oldDefaults) {
+            org.bukkit.Bukkit.getLogger().info("[EterLib] combat.vanilla : anciennes valeurs par défaut remplacées (armure 9, robustesse 4, Protection 20)");
+        }
+        ConfigurationSection read = oldDefaults ? null : vanilla;
+        this.armorPerPoint = read == null ? 9 : read.getDouble("armor-per-point", 9);
+        this.toughnessPerPoint = read == null ? 4 : read.getDouble("toughness-per-point", 4);
+        this.protectionPerLevel = read == null ? 20 : read.getDouble("protection-per-level", 20);
+        this.specificPerLevel = read == null ? 25 : read.getDouble("specific-protection-per-level", 25);
+        this.protectionMagicPerLevel = vanilla == null ? 8 : vanilla.getDouble("protection-magic-per-level", 8);
         this.maxDodge = max == null ? 0.6 : Math.clamp(max.getDouble("dodge", 0.6), 0, 0.95);
         this.maxCrit = max == null ? 1 : Math.clamp(max.getDouble("crit-chance", 1), 0, 1);
         this.maxPenetration = max == null ? 0.9 : Math.clamp(max.getDouble("penetration", 0.9), 0, 0.95);
@@ -118,6 +129,7 @@ public final class CombatSystem implements Listener {
                 }
             }
             sheet.add(Stat.ARMOR, protection * protectionPerLevel, "protection");
+            sheet.add(Stat.MAGIC_RESIST, protection * protectionMagicPerLevel, "protection");
             ItemStack hand = equipment.getItemInMainHand();
             ItemStats.read(hand).forEach((stat, value) -> sheet.add(stat, value, "en main : " + name(hand)));
         }

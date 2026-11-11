@@ -14,7 +14,7 @@ import org.bukkit.util.Vector;
  * Poids (valeur d'équilibrage par seconde et par unité) : un étourdissement d'1 s vaut 6, un saignement d'1 dégât/s
  * pendant 1 s vaut 1 ; de quoi comparer deux capacités qui posent des états différents.
  * <pre>
- *   bleed     dégâts/s par pile (×2 en courant), 5 piles, dégâts bruts
+ *   bleed     dégâts/s par pile (×1,5 en courant), 5 piles, dégâts physiques (l'armure les réduit)
  *   burn      dégâts/s, la plus forte reste ; éteint dans l'eau ; purgeable
  *   stun      contrôle : ni bouger, ni frapper, ni capacité
  *   root      contrôle : ne bouge plus, frappe encore
@@ -37,7 +37,7 @@ public final class BuiltinStates {
     public static void register(States states) {
         states.register(StateType.builder("bleed", StateType.Category.DAMAGE)
                 .stacking(StateType.Stacking.STACK, 5).weight(1).icon("<dark_red>🩸").particle(Particle.DAMAGE_INDICATOR)
-                .damageOverTime(1, DamageKind.TRUE, 2).build());
+                .damageOverTime(1, DamageKind.PHYSICAL, 1.5).build());
         states.register(StateType.builder("burn", StateType.Category.DAMAGE)
                 .stacking(StateType.Stacking.STRONGEST, 1).weight(1).purgeable().icon("<gold>🔥").particle(Particle.FLAME)
                 .damageOverTime(1, DamageKind.MAGIC, 1)

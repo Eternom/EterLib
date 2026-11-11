@@ -182,16 +182,19 @@ states:
 # défense / (défense + defense-constant) : 100 de défense = -50 %, 200 = -67 %. L'armure de Minecraft est convertie :
 #  armor-per-point (points d'armure), toughness-per-point (robustesse), protection-per-level (Protection, toutes pièces),
 #  specific-protection-per-level (Protection contre les projectiles / les explosions, contre ces coups-là).
-# Repères : cuir ≈ 42 (-30 %), fer ≈ 90 (-47 %), diamant ≈ 136 (-58 %), netherite Protection IV ≈ 208 (-68 %).
-# Volontairement modeste : les enchantements améliorés et les objets spéciaux iront au-delà.
+#  protection-magic-per-level : résistance magique par niveau de Protection (la Protection vanilla réduit aussi la magie).
+# Repères (physique) : fer ≈ 135 (-57 %), diamant ≈ 212 (-68 %), diamant ou netherite Protection IV ≈ 530-550 (-84 à -85 %),
+# un peu sous le vanilla (~92 %) pour que les monstres restent dangereux. Magie : Protection IV sur 4 pièces ≈ 128 (-56 %).
+# À revoir quand les objets à statistiques arriveront (base d'armure et de résistance magique).
 # max : plafonds de l'esquive, de la chance de critique et des pénétrations. feedback : particules et sons (critique, esquive).
 combat:
   defense-constant: 100
   vanilla:
-    armor-per-point: 6
-    toughness-per-point: 2
-    protection-per-level: 4
-    specific-protection-per-level: 6
+    armor-per-point: 9
+    toughness-per-point: 4
+    protection-per-level: 20
+    specific-protection-per-level: 25
+    protection-magic-per-level: 8
   max:
     dodge: 0.6
     crit-chance: 1.0
