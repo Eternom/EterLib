@@ -132,3 +132,26 @@ Une seule base pour tout le réseau, pensée pour être lue par un futur site we
 
 `plugins/EterLib/config.yml` : `server-name` (identique au proxy), `server-display-name` (nom montré aux joueurs), `database`, `cache` (Redis), `teleport`,
 `language` (langue par défaut, préfixe des messages et palette). Les plugins n'ont plus que leurs réglages propres.
+
+## Icônes communes des menus
+
+Une même chose garde la même icône dans tous les menus du réseau (et une icône ne sert qu'à une chose dans une même page) :
+
+| Chose | Icône | Chose | Icône |
+|---|---|---|---|
+| Retour | `OAK_DOOR` | Fermer | `BARRIER` (jamais pour autre chose) |
+| Page précédente / suivante | `ARROW` (jamais pour un retour) | Paramètres | `COMPARATOR` |
+| Pass de saison | `NETHER_STAR` | Récompense du jour | `CHEST` |
+| Homes | `RED_BED` | Clan | `WHITE_BANNER` |
+| Métier | `IRON_PICKAXE` | Quêtes | `KNOWLEDGE_BOOK` |
+| Succès | `GOLDEN_APPLE` | Défis | `TARGET` |
+| Classements | `GOLDEN_HELMET` | Statistiques | `SPYGLASS` |
+| Amis | `PLAYER_HEAD` | Message privé | `WRITABLE_BOOK` |
+| Payer | `EMERALD` | Argent (solde) | `GOLD_NUGGET` |
+| Kits | `BARREL` | Spawn / Lobby | `BEACON` / `LODESTONE` |
+| Téléportation aléatoire | `ENDER_PEARL` | Signaler | `REDSTONE_TORCH` |
+| Ignorer | `STRUCTURE_VOID` | Visibilité des joueurs | `ENDER_EYE` |
+
+Placement : retour ou fermer en bas au centre (juste à gauche, case 48, quand le centre porte l'action principale du
+menu), page précédente en bas à gauche (45), page suivante en bas à droite (53), « Page X/Y » sous les flèches
+(`menu.page-of`).
