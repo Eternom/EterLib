@@ -42,7 +42,14 @@ public final class Items {
     public static ItemStack head(PlayerProfile profile, Component name, List<Component> lore) {
         ItemStack item = item(Material.PLAYER_HEAD, name, lore);
         // Avec sa texture si on la connaît : sinon le client montre Steve (Skins)
-        item.editMeta(SkullMeta.class, meta -> meta.setPlayerProfile(fr.eternom.eterLib.module.player.Skins.enrich(profile)));
+        PlayerProfile enriched = fr.eternom.eterLib.module.player.Skins.enrich(profile);
+        // Joueur Bedrock (Floodgate, uuid 00000000-0000-0000-...) sans texture connue : pas de profil Mojang, Paper le
+        // chercherait en ligne jusqu'au timeout à chaque tête ; tête par défaut à la place
+        if (enriched != null && enriched.getId() != null && enriched.getId().getMostSignificantBits() == 0
+                && enriched.getProperties().stream().noneMatch(property -> "textures".equals(property.getName()))) {
+            return item;
+        }
+        item.editMeta(SkullMeta.class, meta -> meta.setPlayerProfile(enriched));
         return item;
     }
 }
