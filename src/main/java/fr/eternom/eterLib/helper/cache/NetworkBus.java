@@ -79,9 +79,11 @@ public class NetworkBus {
 
     /**
      * Thread principal : message de langue (avec préfixe) à un joueur, où qu'il soit sur le réseau.
-     * Ignoré s'il n'est connecté nulle part. sound : petit son de notification.
+     * Gardé dans sa boîte /inbox (relue à sa prochaine arrivée s'il n'est connecté nulle part). sound : petit son.
      */
     public void notify(UUID player, String key, boolean sound, String... placeholders) {
+        // Gardée dans sa boîte (/inbox), connecté ou non : rien ne se perd
+        fr.eternom.eterLib.module.notify.Inbox.record(player, messages.get(Bukkit.getConsoleSender(), key, placeholders));
         Player local = Bukkit.getPlayer(player);
         if (local != null) {
             notifyLocal(local, key, sound, placeholders);

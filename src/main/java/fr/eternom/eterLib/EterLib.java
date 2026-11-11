@@ -212,6 +212,10 @@ public final class EterLib extends JavaPlugin {
         ActionCommand actionCommand = new ActionCommand(actions, messages, stateCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setExecutor(actionCommand);
         java.util.Objects.requireNonNull(getCommand("eterlib")).setTabCompleter(actionCommand);
+        fr.eternom.eterLib.module.notify.Inbox inbox = new fr.eternom.eterLib.module.notify.Inbox(this, redis, messages);
+        Bukkit.getPluginManager().registerEvents(inbox, this);
+        java.util.Objects.requireNonNull(getCommand("inbox")).setExecutor(inbox);
+        java.util.Objects.requireNonNull(getCommand("inbox")).setTabCompleter(inbox);
         fr.eternom.eterLib.module.combat.CombatCommand combatCommand = new fr.eternom.eterLib.module.combat.CombatCommand(combatSystem, messages);
         java.util.Objects.requireNonNull(getCommand("combat")).setExecutor(combatCommand);
         java.util.Objects.requireNonNull(getCommand("combat")).setTabCompleter(combatCommand);

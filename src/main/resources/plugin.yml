@@ -17,6 +17,11 @@ commands:
     description: Tes statistiques de combat (armure, résistance magique, critique, esquive...).
     usage: /combat
     permission: eterlib.combat
+  inbox:
+    description: Tes notifications (reçues en jeu ou pendant ton absence).
+    usage: /inbox
+    aliases: [boite]
+    permission: eterlib.inbox
 
 libraries:
   - com.zaxxer:HikariCP:7.0.2
@@ -24,6 +29,9 @@ libraries:
   - org.mariadb.jdbc:mariadb-java-client:3.5.6
 
 permissions:
+  eterlib.inbox:
+    description: /inbox (ses notifications).
+    default: true
   eterlib.combat:
     description: /combat (ses statistiques de combat).
     default: true

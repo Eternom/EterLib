@@ -95,3 +95,9 @@ time:
   hours-minutes: "<hours> h <minutes> min"
   minutes-seconds: "<minutes> min <seconds> s"
   seconds: "<seconds> s"
+
+inbox:
+  title: "<primary>Tes notifications <dark_gray>(<count>)"
+  line: "<dark_gray>[il y a <ago>] <reset><text>"
+  empty: "<info>Aucune notification."
+  unread: "<info>Tu as <accent><count> notification(s)</accent> reçue(s) pendant ton absence : <accent><click:run_command:'/inbox'>[Les lire]</click></accent>"
