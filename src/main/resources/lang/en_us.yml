@@ -10,7 +10,7 @@ command:
   players-only: "<error>This command can only be used by players."
 
 error:
-  generic: "<error>Something went wrong, please try again later."
+  generic: "<error>Something went wrong, please try again later. <dark_gray>(ref. <ref>, give it to the staff)"
 
 economy:
   unavailable: "<error>The economy is not available right now."

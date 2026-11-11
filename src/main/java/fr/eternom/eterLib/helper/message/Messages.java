@@ -28,6 +28,7 @@ import java.util.Map;
 public class Messages {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final String GENERIC_ERROR = "error.generic";
 
     private final Lang lang;
     private final TagResolver colors;
@@ -56,7 +57,7 @@ public class Messages {
         if (raw == null) {
             return Component.text(key, NamedTextColor.RED); // clé manquante : visible pour être corrigée
         }
-        return MINI_MESSAGE.deserialize(raw, colors, placeholders(placeholders));
+        return MINI_MESSAGE.deserialize(raw, colors, placeholders(withRef(receiver, key, placeholders)));
     }
 
     /**
@@ -68,7 +69,18 @@ public class Messages {
         if (raw == null) {
             return Component.text(key, NamedTextColor.RED);
         }
-        return MINI_MESSAGE.deserialize(raw, colors, tags, placeholders(placeholders));
+        return MINI_MESSAGE.deserialize(raw, colors, tags, placeholders(withRef(receiver, key, placeholders)));
+    }
+
+    /** error.generic : ajoute <ref>, la référence que le joueur peut donner au staff (ErrorRefs). */
+    private static String[] withRef(CommandSender receiver, String key, String[] placeholders) {
+        if (!GENERIC_ERROR.equals(key)) {
+            return placeholders;
+        }
+        String[] out = java.util.Arrays.copyOf(placeholders, placeholders.length + 2);
+        out[placeholders.length] = "ref";
+        out[placeholders.length + 1] = fr.eternom.eterLib.helper.task.ErrorRefs.forReceiver(receiver);
+        return out;
     }
 
     /** Texte sans mise en forme, ex : pour comparer avec ce que le joueur a écrit dans le chat. */

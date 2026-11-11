@@ -48,7 +48,8 @@ public final class Tasks {
             try {
                 result = task.get();
             } catch (RuntimeException e) {
-                plugin.getLogger().log(Level.SEVERE, "Erreur en tâche de fond pour " + player.getName(), e);
+                String ref = ErrorRefs.remember(player.getUniqueId());
+                plugin.getLogger().log(Level.SEVERE, "[réf. " + ref + "] Erreur en tâche de fond pour " + player.getName(), e);
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (player.isOnline()) {
                         onError.run();

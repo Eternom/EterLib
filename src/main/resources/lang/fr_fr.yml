@@ -10,7 +10,7 @@ command:
   players-only: "<error>Commande réservée aux joueurs."
 
 error:
-  generic: "<error>Une erreur est survenue, réessaie plus tard."
+  generic: "<error>Une erreur est survenue, réessaie plus tard. <dark_gray>(réf. <ref>, à donner au staff)"
 
 economy:
   unavailable: "<error>L'économie n'est pas disponible pour le moment."
