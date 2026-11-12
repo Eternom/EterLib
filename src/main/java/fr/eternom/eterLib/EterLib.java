@@ -222,6 +222,11 @@ public final class EterLib extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(inbox, this);
         java.util.Objects.requireNonNull(getCommand("inbox")).setExecutor(inbox);
         java.util.Objects.requireNonNull(getCommand("inbox")).setTabCompleter(inbox);
+        // /language : la langue choisie par le joueur, à la place de celle de son client (tout le réseau)
+        fr.eternom.eterLib.module.language.LanguageChoice language = new fr.eternom.eterLib.module.language.LanguageChoice(this, redis, messages);
+        Bukkit.getPluginManager().registerEvents(language, this);
+        java.util.Objects.requireNonNull(getCommand("language")).setExecutor(language);
+        java.util.Objects.requireNonNull(getCommand("language")).setTabCompleter(language);
         fr.eternom.eterLib.module.combat.CombatCommand combatCommand = new fr.eternom.eterLib.module.combat.CombatCommand(combatSystem, messages);
         java.util.Objects.requireNonNull(getCommand("combat")).setExecutor(combatCommand);
         java.util.Objects.requireNonNull(getCommand("combat")).setTabCompleter(combatCommand);

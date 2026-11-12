@@ -125,7 +125,8 @@ public class Messages {
 
     private String localeOf(CommandSender receiver) {
         return receiver instanceof Player player
-                ? player.locale().toString().toLowerCase(Locale.ROOT)
+                ? fr.eternom.eterLib.module.language.LanguageChoice.of(player.getUniqueId())
+                        .orElseGet(() -> player.locale().toString().toLowerCase(Locale.ROOT))
                 : lang.getDefaultLocale();
     }
 

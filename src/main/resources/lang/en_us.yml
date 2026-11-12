@@ -100,6 +100,17 @@ time:
   minutes-seconds: "<minutes>min <seconds>s"
   seconds: "<seconds>s"
 
+# /language: the language chosen by the player (whole network)
+language:
+  current: "<info>Text language: <accent><language>"
+  choose: "<info>Choose: <click:run_command:'/language fr'><accent><u>[Français]</u></accent></click> <click:run_command:'/language en'><accent><u>[English]</u></accent></click> <click:run_command:'/language auto'><accent><u>[My game's]</u></accent></click>"
+  set: "<success>✔</success> <info>Text language: <accent><language></accent> <dark_gray>(on the whole network)"
+  name:
+    fr_fr: "Français"
+    en_us: "English"
+    auto: "your game's"
+
+
 inbox:
   title: "<primary>Your notifications <dark_gray>(<count>)"
   line: "<dark_gray>[<ago> ago] <reset><text>"

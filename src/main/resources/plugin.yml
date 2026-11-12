@@ -22,6 +22,11 @@ commands:
     usage: /inbox
     aliases: [boite]
     permission: eterlib.inbox
+  language:
+    description: Choisir la langue des textes (fr, en, ou auto = celle de ton jeu).
+    usage: /language [fr|en|auto]
+    aliases: [langue, lang]
+    permission: eterlib.language
 
 libraries:
   - com.zaxxer:HikariCP:7.0.2
@@ -29,6 +34,9 @@ libraries:
   - org.mariadb.jdbc:mariadb-java-client:3.5.6
 
 permissions:
+  eterlib.language:
+    description: /language (choisir sa langue).
+    default: true
   eterlib.inbox:
     description: /inbox (ses notifications).
     default: true

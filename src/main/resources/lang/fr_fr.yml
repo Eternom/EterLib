@@ -100,6 +100,17 @@ time:
   minutes-seconds: "<minutes> min <seconds> s"
   seconds: "<seconds> s"
 
+# /language : la langue choisie par le joueur (tout le réseau)
+language:
+  current: "<info>Langue des textes : <accent><language>"
+  choose: "<info>Choisir : <click:run_command:'/language fr'><accent><u>[Français]</u></accent></click> <click:run_command:'/language en'><accent><u>[English]</u></accent></click> <click:run_command:'/language auto'><accent><u>[Celle de mon jeu]</u></accent></click>"
+  set: "<success>✔</success> <info>Langue des textes : <accent><language></accent> <dark_gray>(sur tout le réseau)"
+  name:
+    fr_fr: "Français"
+    en_us: "English"
+    auto: "celle de ton jeu"
+
+
 inbox:
   title: "<primary>Tes notifications <dark_gray>(<count>)"
   line: "<dark_gray>[il y a <ago>] <reset><text>"
