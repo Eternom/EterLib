@@ -15,7 +15,7 @@ commands:
     permission: eterlib.admin
   combat:
     description: Tes statistiques de combat (armure, résistance magique, critique, esquive...).
-    usage: /combat
+    usage: /combat [numbers]
     permission: eterlib.combat
   inbox:
     description: Tes notifications (reçues en jeu ou pendant ton absence).

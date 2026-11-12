@@ -44,6 +44,10 @@ combat:
     defense: "<dark_gray>▸ <info><stat> : <accent><value></accent> <dark_gray>(-<reduction> % de dégâts)"
     line: "<dark_gray>▸ <info><stat> : <accent><value>"
     footer: "<dark_gray>L'armure de Minecraft compte dans l'armure. Les autres viennent des objets, des états et plus tard des classes."
+    numbers-on: "<success>Chiffres de dégâts affichés <dark_gray>(seulement pour toi). /combat numbers pour les cacher."
+    numbers-off: "<info>Chiffres de dégâts cachés."
+    dodged: "Esquivé"
+    hint: "<dark_gray>/combat numbers : afficher les chiffres de dégâts de tes coups."
     stat:
       armor: "Armure"
       magic_resist: "Résistance magique"

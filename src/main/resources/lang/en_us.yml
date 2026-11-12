@@ -44,6 +44,10 @@ combat:
     defense: "<dark_gray>▸ <info><stat>: <accent><value></accent> <dark_gray>(-<reduction> % damage)"
     line: "<dark_gray>▸ <info><stat>: <accent><value>"
     footer: "<dark_gray>Minecraft armor counts toward armor. The rest comes from items, states and later classes."
+    numbers-on: "<success>Damage numbers shown <dark_gray>(only to you). /combat numbers to hide them."
+    numbers-off: "<info>Damage numbers hidden."
+    dodged: "Dodged"
+    hint: "<dark_gray>/combat numbers: show the damage numbers of your hits."
     stat:
       armor: "Armor"
       magic_resist: "Magic resist"

@@ -29,6 +29,10 @@ public class CombatCommand implements TabExecutor {
             messages.send(sender, "command.players-only");
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("numbers")) {
+            messages.send(player, DamageNumbers.toggle(player) ? "combat.player.numbers-on" : "combat.player.numbers-off");
+            return true;
+        }
         StatSheet sheet = combat.stats(player);
         messages.send(player, "combat.player.header");
         for (Stat stat : Stat.values()) {
@@ -43,11 +47,12 @@ public class CombatCommand implements TabExecutor {
             }
         }
         messages.send(player, "combat.player.footer");
+        player.sendMessage(messages.get(player, "combat.player.hint"));
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return List.of();
+        return args.length == 1 && "numbers".startsWith(args[0].toLowerCase()) ? List.of("numbers") : List.of();
     }
 }

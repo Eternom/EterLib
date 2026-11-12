@@ -219,6 +219,7 @@ public final class EterLib extends JavaPlugin {
         fr.eternom.eterLib.module.combat.CombatCommand combatCommand = new fr.eternom.eterLib.module.combat.CombatCommand(combatSystem, messages);
         java.util.Objects.requireNonNull(getCommand("combat")).setExecutor(combatCommand);
         java.util.Objects.requireNonNull(getCommand("combat")).setTabCompleter(combatCommand);
+        Bukkit.getPluginManager().registerEvents(new fr.eternom.eterLib.module.combat.DamageNumbers(this, messages), this);
 
         new Events(this, TeleportListener.DamageMode.parse(teleport == null ? null : teleport.getString("cancel-on-damage", "combat")));
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> players.heartbeat(
