@@ -118,6 +118,8 @@ game-rules:
 # ni agi, ni parlé depuis afk-minutes est AFK (EterSleep ne l'attend pas pour passer la nuit).
 activity:
   afk-minutes: 5
+  # Étiquette <tag_afk> d'un joueur AFK (liste Tab d'EterTab : à placer dans tab.player-format) ; vide : jamais.
+  afk-tag: " <gray>(AFK)"
 
 teleport:
   # Attente avant de partir (bossbar, compte à rebours, particules). Moins pour un grade : eter.teleport.warmup.<secondes>

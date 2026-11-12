@@ -176,6 +176,12 @@ public final class EterLib extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(placedBlocks, this);
         activity = new Activity(Duration.ofMinutes(Math.max(1, getConfig().getInt("activity.afk-minutes", 5))));
         Bukkit.getPluginManager().registerEvents(activity, this);
+        // Étiquette <tag_afk> (liste Tab d'EterTab, sidebar) : posée quand le joueur devient AFK, vidée à son retour
+        String afkTag = getConfig().getString("activity.afk-tag", " <gray>(AFK)");
+        if (!afkTag.isEmpty()) {
+            Bukkit.getScheduler().runTaskTimer(this, () -> Bukkit.getOnlinePlayers().forEach(online ->
+                    playerTags.set(online, "afk", activity.isAfk(online) ? afkTag : "")), 200, 200);
+        }
         // Règles de jeu de chaque monde (section absente : celles par défaut, dont locator_bar false)
         WorldRules worldRules = new WorldRules(getConfig().isSet("game-rules") ? getConfig().getConfigurationSection("game-rules") : null,
                 getLogger());
